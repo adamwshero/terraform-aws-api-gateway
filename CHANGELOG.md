@@ -1,4 +1,4 @@
-## 1.0.0 (September 19, 2022)
+## 1.0.1 (September 19, 2022)
 
 CHORE:
 
