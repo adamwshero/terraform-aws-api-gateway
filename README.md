@@ -69,8 +69,6 @@ locals {
   account       = local.account_vars.locals.account_id
   env           = local.env_vars.locals.env
 
-  name = "${local.prefix}-${local.product}-${local.env}" // Keeping it DRY
-
   tags = merge(
     local.env_vars.locals.tags,
     local.additional_tags
@@ -97,7 +95,7 @@ dependency "execution_policy" {
 }
 
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.0"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.1"
 }
 
 inputs = {
@@ -109,7 +107,7 @@ inputs = {
   // API Definition & Vars
   openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
     {
-      apikey_name       = local.name
+      apikey_name       = "${local.prefix}-${local.product}-${local.env}"
       endpoint_uri      = "http://${dependency.internal_nlb.outputs.lb_dns_name}/my_app/"
       vpc_link_id       = "abc1d3o"
       lambda_invoke_arn = dependency.lambda_authorizer.outputs.lambda_function_invoke_arn
