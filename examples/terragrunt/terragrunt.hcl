@@ -62,6 +62,7 @@ inputs = {
   log_group_name        = "/aws/apigateway/access/${local.prefix}-${local.product}/my_app/${local.env}"
   access_log_format     = templatefile("${get_terragrunt_dir()}/log_format.json.tpl", {})
   // Canary Stage Settings
+  enable_canary   = false
   use_stage_cache = false
   percent_traffic = 0
   stage_variable_overrides = {
