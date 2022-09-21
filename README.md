@@ -17,7 +17,6 @@ Amazon API Gateway is a fully managed service that makes it easy for developers 
 
 Build RESTful APIs optimized for serverless workloads and HTTP backends using HTTP APIs. HTTP APIs are the best choice for building APIs that only require API proxy functionality. If your APIs require API proxy functionality and API management features in a single solution, API Gateway also offers REST APIs.
 <br>
-<br>
 
 ## Assumptions
   * Public API Only
