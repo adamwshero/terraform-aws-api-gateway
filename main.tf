@@ -6,20 +6,6 @@ resource "aws_api_gateway_rest_api" "this" {
 
   endpoint_configuration {
     types = var.endpoint_type
-    # vpc_endpoint_ids = var.vpc_endpoint_ids
-  }
-}
-
-resource "time_static" "deploy" {
-  count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
-  triggers = {
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_deployment.this[count.index].id
-      ]
-    ))
-  }
-  lifecycle {
-    create_before_destroy = true
   }
 }
 
@@ -136,12 +122,6 @@ resource "aws_api_gateway_usage_plan" "this" {
       api_id = aws_api_gateway_rest_api.this.id
       stage  = api_stages.value
     }
-    # throttle {
-    #   for_each = each.value.paths
-    #     path = api_stages.throttle.value.paths
-    #   burst_limit = each.value.api_stages.throttle["burst_limit"]
-    #   rate_limit = each.value.api_stages.throttle["rate_limit"]
-    # }
   }
   quota_settings {
     limit  = each.value.quota_limit
