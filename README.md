@@ -55,20 +55,17 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
   - Deployments History vs. Deployment being used
     * We deploy every time using `(timestamp()}` in the `aws_api_gateway_deployment` resource. If we do not, sometimes the 
     deployment history has new deployments but the actual deployment in-use by the stage might be an older one.
-<br>
 
 ## Improvements Needed
   - Need `aws_api_gateway_method_settings` to allow us to apply different method settings by stage and by method instead of choosing between the full override `*/*` or only a single method to manage (e.g. `{resource_path}/{http_method}`). Currently whatever the path is dictates all method settings for the stages that have been deployed. Method settings would be represented as a `map` just as we already do with api keys and usage plans.
   - Need usage_plan to accept many API keys as a `list(string)`. Currenly a usage plan has a 1:1 relationship with API keys. This should be expanded so that many API keys can be associated with a single usage plan in the event multiple external consumers have similar API needs. This will reduce the number of usage plans needed.
   - Need the ability to create/enable VPC Link in this module since we're already consuming the Network Load Balancer (NLB) outputs when we are using the `regional` or `edge` deployment type.
-<br>
 
 ## Helpful Information
   - CloudWatch Alarms
     * For CloudWatch Cache Hit/Miss alarms to work, you must enable the cache cluster for the stage.
   - NLB Health Checks
     * Ensure you are using the same availability zones from your NLB all the way to the target ALB where your service is running. Otherwise, you will see NLB targets (which are VPC endpint IP's) that are in an unhealthy state.
-<br>
 
 ### Terragrunt Complete Example
 ```
