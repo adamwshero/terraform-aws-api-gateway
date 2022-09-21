@@ -13,24 +13,21 @@ variable "description" {
 }
 
 variable "openapi_definition" {
-  description = "seomthing"
+  description = "(Required) YAML formatted definition file using OpenAPI 3.x specification. This definition contains all API configuration inputs. Any inputs used in Terraform will override inputs in the definition."
   type        = string
 }
 
 variable "put_rest_api_mode" {
-  description = "test"
+  description = "(Optional) Mode of the PutRestApi operation when importing an OpenAPI specification via the body argument (create or update operation). Valid values are merge and overwrite. If unspecificed, defaults to overwrite (for backwards compatibility). This corresponds to the x-amazon-apigateway-put-integration-method extension. If the argument value is provided and is different than the OpenAPI value, the argument value will override the OpenAPI value."
   type        = string
+  default     = "overwrite"
 }
 
 variable "endpoint_type" {
-  description = "test"
+  description = "(Required) List of endpoint types. This resource currently only supports managing a single value. Valid values: `EDGE`, `REGIONAL` or `PRIVATE`. If unspecified, defaults to `EDGE`. Must be declared as `REGIONAL` in non-Commercial partitions. If set to `PRIVATE` recommend to set put_rest_api_mode = merge to not cause the endpoints and associated Route53 records to be deleted. Refer to the documentation for more information on the difference between edge-optimized and regional APIs."
   type        = list(string)
+  default     = [ "EDGE" ]
 }
-
-# variable "vpc_endpoint_ids" {
-#   description = "test"
-#   type        = list(any)
-# }
 
 #############################
 # API Gateway Stage Settings

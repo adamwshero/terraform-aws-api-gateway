@@ -17,6 +17,26 @@ paths:
       security: [
         apiKeyAuth: []
       ]
+      x-amazon-apigateway-endpoint-configuration:
+        vpcEndpointIds: [""]
+        disableExecuteApiEndpoint: true
+      x-amazon-apigateway-documentation: {
+        version: 1.0.0,
+        documentationParts: [
+        {
+          location: {
+            type: API
+            },
+            properties: {
+              description: "Development API for My Service.",
+              info: {
+                description: "API info description",
+                version: "API info version"
+              }
+            }
+          }
+        ]
+      }
   "/path2":
     post:
       x-amazon-apigateway-integration:

@@ -27,14 +27,28 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
   * All Scenarios
     * You already have created the CloudWatch Log Group for your access logging. This is different from execution log groups which is created automatically by API Gateway and is not manageable by Terraform.
     * You already have created the IAM role and policy for API Gateway execution. This role is needed so that it can create the CloudWatch Log Group and push log streams to it.
-<br>
-<br>
+
 ## Usage
   * The definition of the API is managed using the OpenAPI 3.x standard and is contained in a openapi.yaml file. This file contains the paths, authorization integrations, VPC Link integrations, responses, authorizers, etc. The goal is to configure as much of the API in this .yaml as possible and use Terragrunt to manage the broader context of API Gateway. This approach also reduces greatly the amount of Terraform resources that need to be created/managed.
+  * The resources abstracted from Terraform and into OpenAPI spec are listed below. Because of this, there are no inputs in Terraform for the REST API itself except for the `name`, `description`, `body`, and `put_rest_api_mode`. To provide inputs for these resources, you must do so in the openapi.yaml file using the [AWS OpenAPI Extensions from the developer guide](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html).
+    ```
+    aws_api_gateway_resource
+    aws_api_gateway_method
+    aws_api_gateway_method_response
+    aws_api_gateway_method_settings
+    aws_api_gateway_integration
+    aws_api_gateway_integration_response
+    aws_api_gateway_gateway_response
+    aws_api_gateway_model
+    ```
+  
   * The API is deployed every time a change is made in Terraform. This is done to ensure that the deploy being used matches with the most recent deploy. Otherwise, this can be unexpectedly out-of-sync.
   * This module was initially built to suit a public REST API over Private Link and as such, depended on a Network Load Balancer (NLB) to function with VPC Link. You can choose to remove this dependency for private API's not using the `regional` or `edge` deployment type.
-<br>
-<br>
+
+## Special Notes (Merge Mode)
+  * When importing Open API Specifications with the `body` argument, by default the API Gateway REST API will be replaced with the Open API Specification thus removing any existing methods, resources, integrations, or endpoints. Endpoint mutations are asynchronous operations, and race conditions with DNS are possible. To overcome this limitation, use the `put_rest_api_mode` attribute and set it to `merge`.
+  * Using `put_rest_api_mode` = `merge` when importing the OpenAPI Specification, the AWS control plane will not delete all existing literal properties that are not explicitly set in the OpenAPI definition. Impacted API Gateway properties: ApiKeySourceType, BinaryMediaTypes, Description, EndpointConfiguration, MinimumCompressionSize, Name, Policy).
+
 ## Open Issues
   - Canary
     * If enabled, the configured canary will prevent the next deploy. Canary has to be deleted for a deploy to happen again.
@@ -42,19 +56,18 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
     * We deploy every time using `(timestamp()}` in the `aws_api_gateway_deployment` resource. If we do not, sometimes the 
     deployment history has new deployments but the actual deployment in-use by the stage might be an older one.
 <br>
-<br>
+
 ## Improvements Needed
   - Need `aws_api_gateway_method_settings` to allow us to apply different method settings by stage and by method instead of choosing between the full override `*/*` or only a single method to manage (e.g. `{resource_path}/{http_method}`). Currently whatever the path is dictates all method settings for the stages that have been deployed. Method settings would be represented as a `map` just as we already do with api keys and usage plans.
   - Need usage_plan to accept many API keys as a `list(string)`. Currenly a usage plan has a 1:1 relationship with API keys. This should be expanded so that many API keys can be associated with a single usage plan in the event multiple external consumers have similar API needs. This will reduce the number of usage plans needed.
   - Need the ability to create/enable VPC Link in this module since we're already consuming the Network Load Balancer (NLB) outputs when we are using the `regional` or `edge` deployment type.
 <br>
-<br>
+
 ## Helpful Information
   - CloudWatch Alarms
     * For CloudWatch Cache Hit/Miss alarms to work, you must enable the cache cluster for the stage.
   - NLB Health Checks
     * Ensure you are using the same availability zones from your NLB all the way to the target ALB where your service is running. Otherwise, you will see NLB targets (which are VPC endpint IP's) that are in an unhealthy state.
-<br>
 <br>
 
 ### Terragrunt Complete Example
@@ -95,7 +108,7 @@ dependency "execution_policy" {
 }
 
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.1"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.2"
 }
 
 inputs = {
@@ -244,3 +257,15 @@ inputs = {
 | api_gateway_arn              | Arn of the REST API                         |
 | api_gateway_execution_arn    | Arn of the REST API execution role          |
 | api_gateway_id               | Id of the REST API                          |
+
+<br>
+
+## Supporting Articles & Documentation
+  - Working with AWS API Gateway Extensions to OpenAPI
+    - https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions.html
+  - AWS API Gateway Dimensions & Metrics
+    - https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-metrics-and-dimensions.html
+  - OpenAPI Specification
+    - https://github.com/OAI/OpenAPI-Specification
+    - https://spec.openapis.org/oas/v3.1.0#openapi-specification
+    - https://swagger.io/docs/specification/about/
