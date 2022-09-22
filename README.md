@@ -8,7 +8,9 @@
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/adamwshero/terraform-aws-api-gateway?color=lightgreen&label=latest%20tag%3A&style=for-the-badge)
 <br>
 <br>
-# terraform-aws-api-gateway (v1) [### BETA - LIMITED SUPPORT ###]
+# [### BETA - LIMITED SUPPORT ###]  <br>
+# terraform-aws-api-gateway (v1)
+
 
 Terraform module to create [Amazon API Gateway (v1)](https://aws.amazon.com/api-gateway/) resources.
 
