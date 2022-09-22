@@ -22,10 +22,15 @@ resource "aws_api_gateway_deployment" "this" {
     #       calculate a hash against whole resources. Be aware that using whole
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_rest_api.this.body
-      ]
-    ))
+    # redeployment = sha1(jsonencode([
+    #   aws_api_gateway_rest_api.this.body 
+    #   ]
+    # ))
+
+    // We deploy the API every time Terraform is applied instead of using the
+    // above method of only applying when the body of the openapi.yaml is 
+    // updated.
+    redeployment = "${timestamp()}" 
   }
   lifecycle {
     create_before_destroy = true
