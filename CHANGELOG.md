@@ -1,3 +1,12 @@
+## 1.0.3 (September 22, 2022)
+
+CHORE:
+
+  * Added all inputs/outputs in README
+  * Set deployment to redeploy on timestamp
+  * Removed unused variables
+  * Updated example
+
 ## 1.0.2 (September 21, 2022)
 
 CHORE:

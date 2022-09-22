@@ -277,19 +277,17 @@ variable "waf_acl" {
   default     = null
 }
 
-#######################
-# CloudWatch Variables
-#######################
+################################
+# API Gateway Account Variables
+################################
 variable "cloudwatch_role_arn" {
   description = "(Required) for the `api_gateway_account` resource."
   type        = string
 }
 
-variable "cloudwatch_policy_name" {
-  description = "(Optional) The name of the role policy. If omitted, Terraform will assign a random, unique name."
-  type        = string
-}
-
+#######################
+# CloudWatch Variables
+#######################
 variable "log_group_name" {
   description = "(Optional, Forces new resource) The name of the log group. If omitted, Terraform will assign a random, unique name."
   type        = string

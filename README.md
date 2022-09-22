@@ -8,7 +8,7 @@
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/adamwshero/terraform-aws-api-gateway?color=lightgreen&label=latest%20tag%3A&style=for-the-badge)
 <br>
 <br>
-# terraform-aws-api-gateway (v1) [### BETA ###]
+# terraform-aws-api-gateway (v1) [### BETA - LIMITED SUPPORT ###]
 
 Terraform module to create [Amazon API Gateway (v1)](https://aws.amazon.com/api-gateway/) resources.
 
@@ -44,26 +44,35 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
   * The API is deployed every time a change is made in Terraform. This is done to ensure that the deploy being used matches with the most recent deploy. Otherwise, this can be unexpectedly out-of-sync.
   * This module was initially built to suit a public REST API over Private Link and as such, depended on a Network Load Balancer (NLB) to function with VPC Link. You can choose to remove this dependency for private API's not using the `regional` or `edge` deployment type.
 
-## Special Notes (Merge Mode)
-  * When importing Open API Specifications with the `body` argument, by default the API Gateway REST API will be replaced with the Open API Specification thus removing any existing methods, resources, integrations, or endpoints. Endpoint mutations are asynchronous operations, and race conditions with DNS are possible. To overcome this limitation, use the `put_rest_api_mode` attribute and set it to `merge`.
-  * Using `put_rest_api_mode` = `merge` when importing the OpenAPI Specification, the AWS control plane will not delete all existing literal properties that are not explicitly set in the OpenAPI definition. Impacted API Gateway properties: ApiKeySourceType, BinaryMediaTypes, Description, EndpointConfiguration, MinimumCompressionSize, Name, Policy).
-
-## Open Issues
-  - Canary
-    * If enabled, the configured canary will prevent the next deploy. Canary has to be deleted for a deploy to happen again.
-  - Deployments History vs. Deployment being used
+## Special Notes 
+  * (Merge Mode)
+    * When importing Open API Specifications with the `body` argument, by default the API Gateway REST API will be replaced with the Open API Specification thus removing any existing methods, resources, integrations, or endpoints. Endpoint mutations are asynchronous operations, and race conditions with DNS are possible. To overcome this limitation, use the `put_rest_api_mode` attribute and set it to `merge`.
+    * Using `put_rest_api_mode` = `merge` when importing the OpenAPI Specification, the AWS control plane will not delete all existing literal properties that are not explicitly set in the OpenAPI definition. Impacted API Gateway properties: ApiKeySourceType, BinaryMediaTypes, Description, EndpointConfiguration, MinimumCompressionSize, Name, Policy).
+  * (PRIVATE Type API Endpoint)
+    * When a REST API type of `PRIVATE` is needed, the VPC endpoints must be specified in the `openapi.yaml` definition. This is especially called out since it is not obvious as most modules allow setting this in the Terraform input block.
+      ```
+        x-amazon-apigateway-endpoint-configuration:
+          vpcEndpointIds: [""]
+          disableExecuteApiEndpoint: true
+      ```
+  * (Deployments History vs. Deployment being used)
     * We deploy every time using `(timestamp()}` in the `aws_api_gateway_deployment` resource. If we do not, sometimes the 
     deployment history has new deployments but the actual deployment in-use by the stage might be an older one.
+<br>
 
-## Improvements Needed
-  - Need `aws_api_gateway_method_settings` to allow us to apply different method settings by stage and by method instead of choosing between the full override `*/*` or only a single method to manage (e.g. `{resource_path}/{http_method}`). Currently whatever the path is dictates all method settings for the stages that have been deployed. Method settings would be represented as a `map` just as we already do with api keys and usage plans.
-  - Need usage_plan to accept many API keys as a `list(string)`. Currenly a usage plan has a 1:1 relationship with API keys. This should be expanded so that many API keys can be associated with a single usage plan in the event multiple external consumers have similar API needs. This will reduce the number of usage plans needed.
-  - Need the ability to create/enable VPC Link in this module since we're already consuming the Network Load Balancer (NLB) outputs when we are using the `regional` or `edge` deployment type.
+## Open Issues
+  * Canary
+    * If enabled, the configured canary will prevent the next deploy. Canary has to be deleted for a deploy to happen again.
 
-## Helpful Information
-  - CloudWatch Alarms
+## Upcoming Improvements
+  * Want `aws_api_gateway_method_settings` to allow us to apply different method settings by stage and by method instead of choosing between the full override `*/*` or only a single method to manage (e.g. `{resource_path}/{http_method}`). Currently whatever the path is dictates all method settings for the stages that have been deployed. Method settings would be represented as a `map` just as we already do with api keys and usage plans.
+  * Want a usage_plan to accept many API keys as a `list(string)`. Currenly a usage plan has a 1:1 relationship with API keys. This should be expanded so that many API keys can be associated with a single usage plan in the event multiple external consumers have similar API needs. This will reduce the number of usage plans needed.
+  * Want the ability to create/enable VPC Link in this module since we're already consuming the Network Load Balancer (NLB) outputs when we are using the `regional` or `edge` deployment type.
+
+## The More You Know
+  * CloudWatch Alarms
     * For CloudWatch Cache Hit/Miss alarms to work, you must enable the cache cluster for the stage.
-  - NLB Health Checks
+  * NLB Health Checks
     * Ensure you are using the same availability zones from your NLB all the way to the target ALB where your service is running. Otherwise, you will see NLB targets (which are VPC endpint IP's) that are in an unhealthy state.
 
 ### Terragrunt Complete Example
@@ -104,7 +113,7 @@ dependency "execution_policy" {
 }
 
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.2"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.3"
 }
 
 inputs = {
@@ -228,10 +237,15 @@ inputs = {
 
 | Name | Type |
 |------|------|
-| [api_gateway_rest_api.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_rest_api) | resource |
-| [api_gateway_deployment.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_deployment) | resource |
-| [api_gateway_stage.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage) | resource |
-| [api_gateway_method_settings.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_method_settings) | resource |
+| [aws_api_gateway_rest_api.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_rest_api) | resource |
+| [aws_api_gateway_deployment.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_deployment) | resource |
+| [aws_api_gateway_stage.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage) | resource |
+| [aws_api_gateway_method_settings.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_method_settings) | resource |
+| [aws_api_gateway_account.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_account) | resource |
+| [aws_api_gateway_api_key.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_api_key) | resource |
+| [aws_api_gateway_usage_plan.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_usage_plan) | resource |
+| [aws_api_gateway_usage_plan_key.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_usage_plan_key) | resource |
+| [aws_cloudwatch_log_group.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_wafv2_web_acl_association.rsm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/wafv2_web_acl_association) | resource |
 
 <br>
@@ -239,20 +253,88 @@ inputs = {
 
 ## Available Inputs
 
-| API Gateway Property  | Variable                  | Data Type   |
-| ----------------------| --------------------------| ------------|
-| None                  | `     `                   | String      |
+| Name                        | Resource                          | Variable                                     | Data Type         | Default                        | Required?
+| --------------------------- | --------------------------------- | -------------------------------------------- | ----------------- | ------------------------------ | -------- |
+| REST API Name               | `aws_api_gateway_rest_api`        | `api_name`                                   | `string`          | `null`                         | Yes      |
+| REST API Description        | `aws_api_gateway_rest_api`        | `description`                                | `string`          | `null`                         | No       |
+| OpenAPI Definition          | `aws_api_gateway_rest_api`        | `openapi_definition`                         | `string`          | `null`                         | Yes      |
+| REST API PUT Mode           | `aws_api_gateway_rest_api`        | `put_rest_api_mode`                          | `string`          | `overwrite`                    | Yes      |
+| REST API Endpoint Type      | `aws_api_gateway_rest_api`        | `endpoint_type`                              | `list(string)`    | `[ "EDGE" ]`                   | Yes      |
+| Stage Name                  | `aws_api_gateway_stage`           | `stage_names`                                | `string`          | `null`                         | Yes      |
+| Stage Description           | `aws_api_gateway_stage`           | `stage_description`                          | `string`          | `null`                         | No       |
+| Stage Documentation Version | `aws_api_gateway_stage`           | `documentation_version`                      | `string`          | `null`                         | No       |
+| Cache Cluster Enabled       | `aws_api_gateway_stage`           | `cache_cluster_enabled`                      | `bool`            | `true`                         | No       |
+| Cache Cluster Size          | `aws_api_gateway_stage`           | `cache_cluster_size`                         | `number`          | `0.5`                          | No       |
+| Enable Canary               | `aws_api_gateway_stage`           | `enable_canary`                              | `bool`            | `false`                        | No       |
+| Percent of Traffic          | `aws_api_gateway_stage`           | `percent_traffic`                            | `number`          | `null`                         | No       |
+| Stage Variable Overrides    | `aws_api_gateway_stage`           | `stage_variable_overrides`                   | `any`             | `{}`                           | No       |
+| Use Stage Cache             | `aws_api_gateway_stage`           | `use_stage_cache`                            | `bool`            | `false`                        | No       |
+| Client Certficicate Id      | `aws_api_gateway_stage`           | `client_certificate_id`                      | `string`          | `null`                         | No       |
+| Stage Variables             | `aws_api_gateway_stage`           | `stage_variables`                            | `any`             | `{}`                           | No       |
+| Xray Tracing Enabled        | `aws_api_gateway_stage`           | `xray_tracing_enabled`                       | `bool`            | `false`                        | No       |
+| Access Log Format           | `aws_api_gateway_stage`           | `access_log_format`                          | `string`          | `null`                         | Yes      |
+| Method Path                 | `aws_api_gateway_method_settings` | `method_path`                                | `string`          | `null`                         | Yes      |
+| Metrics Enabled             | `aws_api_gateway_method_settings` | `metrics_enabled`                            | `bool`            | `true`                         | No       |
+| Logging Level               | `aws_api_gateway_method_settings` | `logging_level`                              | `string`          | `INFO`                         | No       |
+| Data Trace Enabled          | `aws_api_gateway_method_settings` | `data_trace_enabled`                         | `bool`            | `false`                        | No       |
+| Throttling Burst Limit      | `aws_api_gateway_method_settings` | `throttling_burst_limit`                     | `number`          | `-1`                           | No       |
+| Throttling Rate Limit       | `aws_api_gateway_method_settings` | `throttling_rate_limit`                      | `number`          | `-1`                           | No       |
+| Caching Enabled             | `aws_api_gateway_method_settings` | `caching_enabled`                            | `bool`            | `true`                         | No       |
+| Cache TTL in Seconds        | `aws_api_gateway_method_settings` | `cache_ttl_in_seconds`                       | `number`          | `300`                          | No       |
+| Cache Data Encrypted        | `aws_api_gateway_method_settings` | `cache_data_encrypted`                       | `bool`            | `false`                        | No       |
+| Require Cache Control Auth  | `aws_api_gateway_method_settings` | `require_authorization_for_cache_control`    | `bool`            | `true`                         | No       |
+| Unauthorized Cache Strategy | `aws_api_gateway_method_settings` | `unauthorized_cache_control_header_strategy` | `string`          | `SUCCEED_WITH_RESPONSE_HEADER` | Yes      |
+| Enable API Key              | `aws_api_gateway_api_key`         | `enable_api_key`                             | `bool`            | `true`                         | No       |
+| API Key Name                | `aws_api_gateway_api_key`         | `api_key_name`                               | `string`          | `null`                         | Yes      |
+| API Key Description         | `aws_api_gateway_api_key`         | `api_key_description`                        | `string`          | `null`                         | No       |
+| Create Usage Plan           | `aws_api_gateway_usage_plan`      | `create_usage_plan`                          | `bool`            | `false`                        | No       |
+| Usage Plan Map              | `aws_api_gateway_usage_plan`      | `usage_plans`                                | `list(object({})` | `null`                         | No       |
+| API Keys                    | `aws_api_gateway_usage_plan`      | `api_keys`                                   | `list(object({})` | `null`                         | No       |
+| Client Name                 | `aws_api_gateway_usage_plan`      | `client_name`                                | `string`          | `null`                         | No       |
+| Request Limit               | `aws_api_gateway_usage_plan`      | `limit`                                      | `number`          | `20`                           | No       |
+| Limit Offset                | `aws_api_gateway_usage_plan`      | `offset`                                     | `number`          | `2`                            | No       |
+| Limit Period                | `aws_api_gateway_usage_plan`      | `period`                                     | `string`          | `WEEK`                         | No       |
+| Burst Limit                 | `aws_api_gateway_usage_plan`      | `burst_limit`                                | `number`          | `5`                            | No       |
+| Rate Limit                  | `aws_api_gateway_usage_plan`      | `rate_limit`                                 | `number`          | `10`                           | No       |
+| CloudWatch Role Arn         | `aws_api_gateway_account`         | `cloudwatch_role_arn`                        | `string`          | `null`                         | No       |
+| Log Group Name              | `aws_cloudwatch_log_group`        | `log_group_name`                             | `string`          | `null`                         | No       |
+| Log Group Retention In Days | `aws_cloudwatch_log_group`        | `log_group_retention_in_days`                | `number`          | `7`                            | No       |
+| Log Group KMS Key           | `aws_cloudwatch_log_group`        | `log_group_kms_key`                          | `string`          | `null`                         | No       |
+| Enable WAF                  | `aws_wafv2_web_acl_association`   | `enable_waf`                                 | `bool`            | `false`                        | No       |
+| WAF ACL                     | `aws_wafv2_web_acl_association`   | `waf_acl`                                    | `string`          | `null`                         | No       |
 
 <br>
 
+## Predetermined Inputs
+
+| Name                        | Resource                          | Property                | Data Type         | Default                                           | Required?
+| --------------------------- | --------------------------------- | ----------------------- | ----------------- | ------------------------------------------------- | -------- |
+| REST API Id                 | `aws_api_gateway_deployment`      | `rest_api_id`           | `string`          | `aws_api_gateway_rest_api.this.id`                | Yes      |
+| Stage Name                  | `aws_api_gateway_deployment`      | `stage_name`            | `string`          | `aws_api_gateway_method_settings.this.stage_name` | Yes      |
+| REST API Id                 | `aws_api_gateway_stage`           | `rest_api_id`           | `string`          | `aws_api_gateway_rest_api.this.id`                | Yes      |
+| Deployment Id               | `aws_api_gateway_stage`           | `deployment_id`         | `string`          | `aws_api_gateway_deployment.this.id`              | Yes      |
+| Destination Arn             | `aws_api_gateway_stage`           | `destination_arn`       | `string`          | `aws_cloudwatch_log_group.this.arn`               | Yes      |
+| REST API ID                 | `aws_api_gateway_method_settings` | `rest_api_id`           | `string`          | `aws_api_gateway_rest_api.this.id`                | Yes      |
+| REST API ID                 | `aws_api_gateway_usage_plan`      | `api_id`                | `string`          | `aws_api_gateway_rest_api.this.id`                | Yes      |
+| Key ID                      | `aws_api_gateway_usage_plan_key`  | `key_id`                | `string`          | `aws_api_gateway_api_key.this.id`                 | Yes      |
+| Usage Plan ID               | `aws_api_gateway_usage_plan_key`  | `usage_plan_id`         | `string`          | `aws_api_gateway_usage_plan_key.this.id`          | Yes      |
+| Resource Arn                | `aws_wafv2_web_acl_association`   | `resource_arn`          | `string`          | `aws_api_gateway_stage.this.arn`                  | Yes      |
+
+<br>
 
 ## Outputs
 
-| Name                         | Description                                 |
-|------------------------------|---------------------------------------------|
-| api_gateway_arn              | Arn of the REST API                         |
-| api_gateway_execution_arn    | Arn of the REST API execution role          |
-| api_gateway_id               | Id of the REST API                          |
+| Name                                     | Description                              |
+|------------------------------------------|------------------------------------------|
+| api_gateway_rest_api_arn                 | Arn of the REST API.                     |
+| api_gateway_rest_api_name                | Name of the REST API.                    |
+| api_gateway_rest_api_id                  | Id of the REST API.                      |
+| api_gateway_rest_api_execution_arn       | Execution Arn of the REST API.           |
+| api_gateway_rest_api_stage_arn           | Arn of the deployed stage(s).            |
+| api_gateway_rest_api_stage_id            | Id of the deployed stage(s).             |
+| api_gateway_rest_api_stage_invoke_url    | Invoke URL of the deployed stage(s).     |
+| api_gateway_rest_api_stage_execution_arn | Execution arn of the deployed stage(s).  |
+| api_gateway_rest_api_stage_web_acl       | WAF Access Control List for the stage(s) |
 
 <br>
 
