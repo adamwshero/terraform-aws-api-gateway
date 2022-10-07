@@ -20,6 +20,18 @@ Amazon API Gateway is a fully managed service that makes it easy for developers 
 Build RESTful APIs optimized for serverless workloads and HTTP backends using HTTP APIs. HTTP APIs are the best choice for building APIs that only require API proxy functionality. If your APIs require API proxy functionality and API management features in a single solution, API Gateway also offers REST APIs.
 <br>
 
+## Module Capabilities
+  * Uses OpenAPI 3.x Specification
+  * Deploy REST API to many stages
+  * Supports creation of many API Keys
+  * Supports creation of many stages
+  * Supports assigning many API Keys to many usage plans
+  * Supports assigning many usage plans to many stages
+  * Supports WAF integration for stages
+  * Supports VPC Link for `EDGE` & `REGIONAL` type API's
+  * Supports VPC Endpoints for `PRIVATE` type API's
+<br>
+
 ## Assumptions
   * Public API Only
     * You already have Network Load Balancer (NLB) with an IP type target group created if you are creating an API using the `regional` or `edge` deployment type.
@@ -115,7 +127,7 @@ dependency "execution_policy" {
 }
 
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.3"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.4"
 }
 
 inputs = {
