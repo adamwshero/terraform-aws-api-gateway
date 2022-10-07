@@ -13,7 +13,6 @@ resource "aws_api_gateway_deployment" "this" {
   count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
   rest_api_id = aws_api_gateway_rest_api.this.id
-  stage_name  = aws_api_gateway_method_settings.this[count.index].stage_name
   triggers = {
     # NOTE: The configuration below will satisfy ordering considerations,
     #       but not pick up all future REST API changes. More advanced patterns
@@ -30,7 +29,7 @@ resource "aws_api_gateway_deployment" "this" {
     // We deploy the API every time Terraform is applied instead of using the
     // above method of only applying when the body of the openapi.yaml is 
     // updated.
-    redeployment = "${timestamp()}" 
+    redeployment = "${timestamp()}"
   }
   lifecycle {
     create_before_destroy = true
@@ -41,7 +40,7 @@ resource "aws_api_gateway_stage" "this" {
   count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
   rest_api_id           = aws_api_gateway_rest_api.this.id
-  stage_name            = element(var.stage_names, count.index)
+  stage_name            = var.stage_names[count.index]
   description           = var.stage_description
   documentation_version = var.documentation_version
   deployment_id         = aws_api_gateway_deployment.this[count.index].id
@@ -74,7 +73,7 @@ resource "aws_api_gateway_method_settings" "this" {
   count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
   rest_api_id = aws_api_gateway_rest_api.this.id
-  stage_name  = element(var.stage_names, count.index)
+  stage_name  = aws_api_gateway_stage.this[count.index].stage_name
   method_path = var.method_path
   settings {
     metrics_enabled                            = var.metrics_enabled
@@ -137,6 +136,9 @@ resource "aws_api_gateway_usage_plan" "this" {
     burst_limit = each.value.burst_limit
     rate_limit  = each.value.rate_limit
   }
+  depends_on = [
+    aws_api_gateway_stage.this
+  ]
 }
 
 resource "aws_api_gateway_usage_plan_key" "this" {

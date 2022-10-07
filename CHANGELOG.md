@@ -1,3 +1,9 @@
+## 1.0.4 (October 7, 2022)
+
+BUG:
+
+  * Fixed race condition with deployment vs stage under certain conditions.
+
 ## 1.0.3 (September 22, 2022)
 
 CHORE:
