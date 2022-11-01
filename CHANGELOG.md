@@ -1,3 +1,8 @@
+## 1.0.6 (November 1, 2022)
+
+CHORE:
+  * Removed Beta-Limited Support header from readme.
+
 ## 1.0.5 (November 1, 2022)
 
 BUG:

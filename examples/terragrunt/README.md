@@ -1,7 +1,7 @@
 ### Terragrunt Basic Example + Lambda (as authorizer)
 ```
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
 }
 
 inputs = {
@@ -45,7 +45,7 @@ inputs = {
 ### Terragrunt Example + Lambda (as authorizer) + Stage Canary + Method Settings
 ```
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
 }
 
 inputs = {
@@ -114,7 +114,7 @@ inputs = {
 ### Terragrunt Complete Example + Lambda (as authorizer) + Stage Canary + Method Settings + WAF
 ```
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
 }
 
 inputs = {
@@ -185,7 +185,7 @@ inputs = {
 ### Terragrunt Complete Example + Lambda (as authorizer) + Stage Canary + Method Settings + WAF + API Keys + Usage Plans
 ```
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
 }
 
 inputs = {

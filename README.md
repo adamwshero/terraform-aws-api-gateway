@@ -8,8 +8,7 @@
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/adamwshero/terraform-aws-api-gateway?color=lightgreen&label=latest%20tag%3A&style=for-the-badge)
 <br>
 <br>
-# [### BETA - LIMITED SUPPORT ###]  <br>
-# terraform-aws-api-gateway (REST)
+# terraform-aws-api-gateway (V1)
 
 
 Terraform module to create [Amazon API Gateway (v1)](https://aws.amazon.com/api-gateway/) resources.
@@ -103,7 +102,7 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 ### Terraform Basic Example
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
 
 
 inputs = {
@@ -147,7 +146,7 @@ inputs = {
 ### Terragrunt Basic Example
 ```
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
 }
 
 inputs = {

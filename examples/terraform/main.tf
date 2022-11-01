@@ -1,5 +1,5 @@
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
 
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
