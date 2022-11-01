@@ -1,11 +1,11 @@
 locals {
-  account_vars  = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  product_vars  = read_terragrunt_config(find_in_parent_folders("product.hcl"))
-  env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  product       = local.product_vars.locals.product_name
-  prefix        = local.product_vars.locals.prefix
-  account       = local.account_vars.locals.account_id
-  env           = local.env_vars.locals.env
+  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  product_vars = read_terragrunt_config(find_in_parent_folders("product.hcl"))
+  env_vars     = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  product      = local.product_vars.locals.product_name
+  prefix       = local.product_vars.locals.prefix
+  account      = local.account_vars.locals.account_id
+  env          = local.env_vars.locals.env
 
   tags = merge(
     local.env_vars.locals.tags,
@@ -33,7 +33,7 @@ dependency "execution_policy" {
 }
 
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
 }
 
 inputs = {
