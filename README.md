@@ -9,7 +9,7 @@
 <br>
 <br>
 # [### BETA - LIMITED SUPPORT ###]  <br>
-# terraform-aws-api-gateway (v1)
+# terraform-aws-api-gateway (REST)
 
 
 Terraform module to create [Amazon API Gateway (v1)](https://aws.amazon.com/api-gateway/) resources.
@@ -33,13 +33,14 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 <br>
 
 ## Assumptions
-  * Public API Only
+  * Public API Scenario
     * You already have Network Load Balancer (NLB) with an IP type target group created if you are creating an API using the `regional` or `edge` deployment type.
     * You already have VPC Link setup and configured to point to your internal Network Load Balancer (NLB) if you are creating an API using the `regional` or `edge` deployment type.
     * You have already configured a VPC endpoint(s) that your NLB is using as targets if you are creating an API using the `regional` or `edge` deployment type. That VPC endpoint is connected to a VPC Endpoint Service in the same account or another account. (see architecture diagram)
   * All Scenarios
     * You already have created the CloudWatch Log Group for your access logging. This is different from execution log groups which is created automatically by API Gateway and is not manageable by Terraform.
     * You already have created the IAM role and policy for API Gateway execution. This role is needed so that it can create the CloudWatch Log Group and push log streams to it.
+<br>
 
 ## Usage
   * The definition of the API is managed using the OpenAPI 3.x standard and is contained in a openapi.yaml file. This file contains the paths, authorization integrations, VPC Link integrations, responses, authorizers, etc. The goal is to configure as much of the API in this .yaml as possible and use Terragrunt to manage the broader context of API Gateway. This approach also reduces greatly the amount of Terraform resources that need to be created/managed.
@@ -57,6 +58,7 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
   
   * The API is deployed every time a change is made in Terraform. This is done to ensure that the deploy being used matches with the most recent deploy. Otherwise, this can be unexpectedly out-of-sync.
   * This module was initially built to suit a public REST API over Private Link and as such, depended on a Network Load Balancer (NLB) to function with VPC Link. You can choose to remove this dependency for private API's not using the `regional` or `edge` deployment type.
+<br>
 
 ## Special Notes 
   * (Merge Mode)
@@ -77,6 +79,10 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 ## Open Issues
   * Canary
     * If enabled, the configured canary will prevent the next deploy. Canary has to be deleted for a deploy to happen again.
+  * Deployments History vs. Deployment being used
+    * We deploy every time using `(timestamp()}` in the `aws_api_gateway_deployment` resource. If we do not, sometimes the 
+    deployment history has new deployments but the actual deployment in-use by the stage might be an older one.
+<br>
 
 ## Upcoming Improvements
   * Want `aws_api_gateway_method_settings` to allow us to apply different method settings by stage and by method instead of choosing between the full override `*/*` or only a single method to manage (e.g. `{resource_path}/{http_method}`). Currently whatever the path is dictates all method settings for the stages that have been deployed. Method settings would be represented as a `map` just as we already do with api keys and usage plans.
@@ -88,50 +94,20 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
     * For CloudWatch Cache Hit/Miss alarms to work, you must enable the cache cluster for the stage.
   * NLB Health Checks
     * Ensure you are using the same availability zones from your NLB all the way to the target ALB where your service is running. Otherwise, you will see NLB targets (which are VPC endpint IP's) that are in an unhealthy state.
+  * NLB Target Groups
+    * At the time of this writing, there is an open issue for NLB's specifically where you will only be able to have 1 target group for a listener in Terraform (e.g. 443). Because of this, we must deploy an NLB, & VPCLink for each API instead of having 1 NLB and many target groups for each API. [See this issue opened for the AWS CDK (is not a CDK issue alone)](https://github.com/aws/aws-cdk/issues/11943)
+  * VPCLink + Private Link
+    * In the case where we are using private link + VPC Link to connect a REST API to a target service, it is important to know that the integration URI needed for the API integration request needs to match the domain/cert that is being used at the ALB level closest to the target service. Do not point the integration URI to the network load balancer. If the ALB listener for the application has a cert attached for `*.nonprod.mycompany.com`, the integration URI for the API needs to also use that domain `(e.g. my-app.nonprod.mycompany.com)` to avoid a cert mismatch error.
+<br>
 
-### Terragrunt Complete Example
+### Terraform Basic Example
 ```
-locals {
-  external_deps = read_terragrunt_config(find_in_parent_folders("external-deps.hcl"))
-  account_vars  = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  product_vars  = read_terragrunt_config(find_in_parent_folders("product.hcl"))
-  env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  product       = local.product_vars.locals.product_name
-  prefix        = local.product_vars.locals.prefix
-  account       = local.account_vars.locals.account_id
-  env           = local.env_vars.locals.env
+module "rest-api" {
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
 
-  tags = merge(
-    local.env_vars.locals.tags,
-    local.additional_tags
-  )
-
-  additional_tags = {
-  }
-}
-
-include {
-  path = find_in_parent_folders()
-}
-
-dependency "waf_acl" {
-  config_path = "../../../core/waf"
-}
-
-dependency "execution_role" {
-  config_path = "../../../core/iam/roles/apigw-execution"
-}
-
-dependency "execution_policy" {
-  config_path = "../../../core/iam/policies/apigw-execution"
-}
-
-terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.4"
-}
 
 inputs = {
-  api_name          = "${local.prefix}-${local.product}-my-app-${local.env}"
+  api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
   put_rest_api_mode = "merge"
@@ -139,90 +115,75 @@ inputs = {
   // API Definition & Vars
   openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
     {
-      apikey_name       = "${local.prefix}-${local.product}-${local.env}"
-      endpoint_uri      = "http://${dependency.internal_nlb.outputs.lb_dns_name}/my_app/"
-      vpc_link_id       = "abc1d3o"
-      lambda_invoke_arn = dependency.lambda_authorizer.outputs.lambda_function_invoke_arn
+      endpoint_uri             = "https://my-app.nonprod.company.com}/my_app_path"
+      authorizer_invoke_arn    = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:111111111111:function:my-app-dev/invocation"
+      authorizer_execution_arn = "arn:aws:iam::111111111111:role/my-app-dev"
     }
   )
 
   // Stage Settings
-  stage_names           = ["${local.env}"]
+  stage_names           = ["dev"]
   stage_description     = "Development stage for My App API"
-  cache_cluster_enabled = true
-  cache_cluster_size    = 0.5
-  xray_tracing_enabled  = false
-  log_group_name        = "/aws/apigateway/access/${local.prefix}-${local.product}/my_app/${local.env}"
+  log_group_name        = "/aws/apigateway/access/my_app/dev"
   access_log_format     = templatefile("${get_terragrunt_dir()}/log_format.json.tpl", {})
-  // Canary Stage Settings
-  enable_canary   = false
-  use_stage_cache = false
-  percent_traffic = 0
-  stage_variable_overrides = {
-    stage_description     = "Canary Development stage for My App API"
-    cache_cluster_enabled = false
-    cache_cluster_size    = 0.5
-    xray_tracing_enabled  = false
-  }
 
   // Method Settings
-  method_path                                = "*/*"
-  metrics_enabled                            = true
-  data_trace_enabled                         = true
-  log_level                                  = "INFO"
-  throttling_burst_limit                     = 5000
-  throttling_rate_limit                      = 10000
-  caching_enabled                            = true
-  cache_data_encrypted                       = false
-  cache_ttl_in_seconds                       = 300
-  require_authorization_for_cache_control    = true
-  unauthorized_cache_control_header_strategy = "SUCCEED_WITH_RESPONSE_HEADER"
+  method_path = "*/*"
 
   // Security
-  enable_waf = true
-  waf_acl    = dependency.waf_acl.outputs.web_acl_arn
+  enable_waf = false
 
   // Execution Role
-  cloudwatch_role_arn    = dependency.execution_role.outputs.iam_role_arn
-  cloudwatch_policy_name = dependency.execution_policy.outputs.name
+  cloudwatch_role_arn    = "arn:aws:logs:us-east-1:111111111111:log-group:/aws/lambda/my-app-dev"
+  cloudwatch_policy_name = "my-app-dev"
 
   // Usage Plans & API Keys
-  create_usage_plan = true
-  enable_api_key    = true
-  api_keys = [
+  create_usage_plan = false
+  enable_api_key    = false
+
+  tags = local.tags
+}
+```
+### Terragrunt Basic Example
+```
+terraform {
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
+}
+
+inputs = {
+  api_name          = "my-app-dev"
+  description       = "Development API for the My App service."
+  endpoint_type     = ["REGIONAL"]
+  put_rest_api_mode = "merge"
+
+  // API Definition & Vars
+  openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
     {
-      name       = "open-use-internal-${local.env}"
-      key_type   = "API_KEY"
-      usage_plan = "open-use-internal-${local.env}"
-    },
-    {
-      name       = "external-partner-${local.env}"
-      key_type   = "API_KEY"
-      usage_plan = "external-partner-daily-throttle-${local.env}"
+      endpoint_uri             = "https://my-app.nonprod.company.com}/my_app_path"
+      authorizer_invoke_arn    = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:111111111111:function:my-app-dev/invocation"
+      authorizer_execution_arn = "arn:aws:iam::111111111111:role/my-app-dev"
     }
-  ]
-  usage_plans = [
-    {
-      name         = "open-use-internal-${local.env}"
-      description  = "Open API Usage Plan."
-      burst_limit  = 10000000
-      rate_limit   = 10000000
-      quota_limit  = 10000000
-      quota_offset = 6
-      quota_period = "WEEK"
-      stages       = ["${local.env}"]
-    },
-    {
-      name         = "external-partner-daily-throttle-${local.env}"
-      description  = "Daily throttled API Usage Plan."
-      burst_limit  = 300
-      rate_limit   = 600
-      quota_limit  = 15000
-      quota_offset = 0
-      quota_period = "DAY",
-      stages       = ["${local.env}"]
-    }
-  ]
+  )
+
+  // Stage Settings
+  stage_names       = ["dev"]
+  stage_description = "Development stage for My App API"
+  log_group_name    = "/aws/apigateway/access/my_app/dev"
+  access_log_format = templatefile("${get_terragrunt_dir()}/log_format.json.tpl", {})
+
+  // Method Settings
+  method_path = "*/*"
+
+  // Security
+  enable_waf = false
+
+  // Execution Role
+  cloudwatch_role_arn    = "arn:aws:logs:us-east-1:111111111111:log-group:/aws/lambda/my-app-dev"
+  cloudwatch_policy_name = "my-app-dev"
+
+  // Usage Plans & API Keys
+  create_usage_plan = false
+  enable_api_key    = false
 
   tags = local.tags
 }

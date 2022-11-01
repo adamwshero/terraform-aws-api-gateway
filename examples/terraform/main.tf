@@ -1,49 +1,13 @@
-locals {
-  account_vars  = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  product_vars  = read_terragrunt_config(find_in_parent_folders("product.hcl"))
-  env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  product       = local.product_vars.locals.product_name
-  prefix        = local.product_vars.locals.prefix
-  account       = local.account_vars.locals.account_id
-  env           = local.env_vars.locals.env
-
-  tags = merge(
-    local.env_vars.locals.tags,
-    local.additional_tags
-  )
-
-  additional_tags = {
-  }
-}
-
-include {
-  path = find_in_parent_folders()
-}
-
-dependency "waf_acl" {
-  config_path = "../waf"
-}
-
-dependency "execution_role" {
-  config_path = "../iam/roles/apigw-execution"
-}
-
-dependency "execution_policy" {
-  config_path = "../iam/policies/apigw-execution"
-}
-
-terraform {
+module "rest-api" {
   source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.5"
-}
 
-inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
   put_rest_api_mode = "merge"
 
   // API Definition & Vars
-  openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
+  openapi_definition = templatefile("${path.module}/openapi.yaml",
     {
       endpoint_uri             = "https://my-app.nonprod.company.com/my_app_path"
       vpc_link_id              = "9ab12c"
@@ -59,7 +23,7 @@ inputs = {
   cache_cluster_size    = 0.5
   xray_tracing_enabled  = false
   log_group_name        = "/aws/apigateway/access/my_app/dev"
-  access_log_format     = templatefile("${get_terragrunt_dir()}/log_format.json.tpl", {})
+  access_log_format     = templatefile("${path.module}/log_format.json.tpl", {})
   // Canary Stage Settings
   enable_canary   = false
   use_stage_cache = false

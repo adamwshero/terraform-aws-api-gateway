@@ -26,7 +26,7 @@ variable "put_rest_api_mode" {
 variable "endpoint_type" {
   description = "(Required) List of endpoint types. This resource currently only supports managing a single value. Valid values: `EDGE`, `REGIONAL` or `PRIVATE`. If unspecified, defaults to `EDGE`. Must be declared as `REGIONAL` in non-Commercial partitions. If set to `PRIVATE` recommend to set put_rest_api_mode = merge to not cause the endpoints and associated Route53 records to be deleted. Refer to the documentation for more information on the difference between edge-optimized and regional APIs."
   type        = list(string)
-  default     = [ "EDGE" ]
+  default     = ["EDGE"]
 }
 
 #############################
@@ -66,6 +66,13 @@ variable "percent_traffic" {
   description = "(Optional) Percent 0.0 - 100.0 of traffic to divert to the canary deployment."
   type        = number
   default     = null
+}
+
+variable "enable_canary" {
+  description = "(Optional) Whether to use the values supplied for the canary and stage_variable_overrides or not."
+  type        = bool
+  default     = false
+
 }
 
 variable "stage_variable_overrides" {
@@ -174,9 +181,9 @@ variable "unauthorized_cache_control_header_strategy" {
 # API Gateway API Key Variables
 ################################
 variable "enable_api_key" {
-  description = "(Optional) Whether the API key can be used by callers. Defaults to `true`."
+  description = "(Optional) Whether the API key can be used by callers. Defaults to `false`."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "api_key_name" {
@@ -214,6 +221,16 @@ variable "usage_plans" {
       stages       = list(string)
     })
   )
+  default = [{
+    burst_limit  = null
+    description  = null
+    name         = null
+    quota_limit  = null
+    quota_offset = null
+    quota_period = null
+    rate_limit   = null
+    stages       = [null]
+  }]
 }
 
 variable "api_keys" {
@@ -225,6 +242,11 @@ variable "api_keys" {
       usage_plan = string
     })
   )
+  default = [{
+    key_type   = null
+    name       = null
+    usage_plan = null
+  }]
 }
 
 variable "client_name" {
@@ -277,17 +299,14 @@ variable "waf_acl" {
   default     = null
 }
 
-################################
-# API Gateway Account Variables
-################################
+#######################
+# CloudWatch Variables
+#######################
 variable "cloudwatch_role_arn" {
   description = "(Required) for the `api_gateway_account` resource."
   type        = string
 }
 
-#######################
-# CloudWatch Variables
-#######################
 variable "log_group_name" {
   description = "(Optional, Forces new resource) The name of the log group. If omitted, Terraform will assign a random, unique name."
   type        = string

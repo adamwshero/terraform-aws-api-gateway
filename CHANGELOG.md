@@ -1,3 +1,13 @@
+## 1.0.5 (November 1, 2022)
+
+BUG:
+  * Added option to disable canary given the current open issue.
+  * Fixed usage plans and api key variables so the maps can be ommitted from input blocks if set to false.
+
+CHORE:
+  * Updated output descriptions for WAF and stage
+  * Added examples for terraform and improved existing examples
+
 ## 1.0.4 (October 7, 2022)
 
 BUG:

@@ -21,6 +21,9 @@ resource "aws_api_gateway_deployment" "this" {
     #       calculate a hash against whole resources. Be aware that using whole
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
+
+    // We can use this method if we want to isolate deploys to a specific resource 
+    // or resource attribute. But for now we just deploy every time with {timestamp()}.
     # redeployment = sha1(jsonencode([
     #   aws_api_gateway_rest_api.this.body 
     #   ]
@@ -59,13 +62,16 @@ resource "aws_api_gateway_stage" "this" {
     }
   }
   dynamic "canary_settings" {
-    for_each = var.stage_variable_overrides != null ? [true] : []
+    for_each = var.enable_canary == true ? [true] : []
 
     content {
       percent_traffic          = var.percent_traffic
       stage_variable_overrides = var.stage_variable_overrides
       use_stage_cache          = var.use_stage_cache
     }
+  }
+  lifecycle {
+    create_before_destroy = false
   }
 }
 
