@@ -10,9 +10,8 @@ resource "aws_api_gateway_rest_api" "this" {
 }
 
 resource "aws_api_gateway_deployment" "this" {
-  count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
-
   rest_api_id = aws_api_gateway_rest_api.this.id
+  description = "Managed by Terraform"
   triggers = {
     # NOTE: The configuration below will satisfy ordering considerations,
     #       but not pick up all future REST API changes. More advanced patterns
@@ -22,16 +21,19 @@ resource "aws_api_gateway_deployment" "this" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
 
-    // We can use this method if we want to isolate deploys to a specific resource 
-    // or resource attribute. But for now we just deploy every time with {timestamp()}.
+    #       We can use this method if we want to isolate deploys to a specific 
+    #       resource or resource attribute. But for now we just deploy every time 
+    #       with {timestamp()}.
+    #       https://github.com/hashicorp/terraform-provider-aws/issues/162
+
     # redeployment = sha1(jsonencode([
     #   aws_api_gateway_rest_api.this.body 
     #   ]
     # ))
 
-    // We deploy the API every time Terraform is applied instead of using the
-    // above method of only applying when the body of the openapi.yaml is 
-    // updated.
+    # We deploy the API every time Terraform is applied instead of using the
+    # above method of only applying when the body of the openapi.yaml is 
+    # updated.
     redeployment = "${timestamp()}"
   }
   lifecycle {
@@ -44,7 +46,7 @@ resource "aws_api_gateway_stage" "this" {
 
   rest_api_id           = aws_api_gateway_rest_api.this.id
   stage_name            = var.stage_names[count.index]
-  description           = var.stage_description
+  description           = "${var.stage_description} - Deployed on ${timestamp()}"
   documentation_version = var.documentation_version
   deployment_id         = aws_api_gateway_deployment.this[count.index].id
   cache_cluster_enabled = var.cache_cluster_enabled
@@ -71,7 +73,7 @@ resource "aws_api_gateway_stage" "this" {
     }
   }
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 }
 

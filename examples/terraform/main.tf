@@ -1,10 +1,10 @@
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
 
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
-  put_rest_api_mode = "merge"
+  put_put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
   openapi_definition = templatefile("${path.module}/openapi.yaml",

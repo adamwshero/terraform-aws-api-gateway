@@ -24,6 +24,7 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
   * Deploy REST API to many stages
   * Supports creation of many API Keys
   * Supports creation of many stages
+  * Supports stage canaries.
   * Supports assigning many API Keys to many usage plans
   * Supports assigning many usage plans to many stages
   * Supports WAF integration for stages
@@ -62,7 +63,9 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 ## Special Notes 
   * (Merge Mode)
     * When importing Open API Specifications with the `body` argument, by default the API Gateway REST API will be replaced with the Open API Specification thus removing any existing methods, resources, integrations, or endpoints. Endpoint mutations are asynchronous operations, and race conditions with DNS are possible. To overcome this limitation, use the `put_rest_api_mode` attribute and set it to `merge`.
-    * Using `put_rest_api_mode` = `merge` when importing the OpenAPI Specification, the AWS control plane will not delete all existing literal properties that are not explicitly set in the OpenAPI definition. Impacted API Gateway properties: ApiKeySourceType, BinaryMediaTypes, Description, EndpointConfiguration, MinimumCompressionSize, Name, Policy).
+    * Using `put_rest_api_mode` = `merge` when importing the OpenAPI Specification, the AWS control plane WILL NOT delete all existing literal properties that are not explicitly set in the OpenAPI definition. Impacted API Gateway properties: ApiKeySourceType, BinaryMediaTypes, Description, EndpointConfiguration, MinimumCompressionSize, Name, Policy).
+    * When using `put_rest_api_mode` = `merge`, and you rename/remove a resource in the body, that resource change WILL NOT be reflected in the console.
+    * When using `put_rest_api_mode` = `overwrite`, the AWS APIGW console reflects all changes you make accurately. However, be aware of the warning issued by the provider about using `overwrite` mode. We have not experienced issues using it so far with this module and implementation but in tests, we have only toggled this mode when we are renaming resource paths or removing resources from the body altogether.
   * (PRIVATE Type API Endpoint)
     * When a REST API type of `PRIVATE` is needed, the VPC endpoints must be specified in the `openapi.yaml` definition. This is especially called out since it is not obvious as most modules allow setting this in the Terraform input block.
       ```
@@ -75,18 +78,11 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
     deployment history has new deployments but the actual deployment in-use by the stage might be an older one.
 <br>
 
-## Open Issues
-  * Canary
-    * If enabled, the configured canary will prevent the next deploy. Canary has to be deleted for a deploy to happen again.
-  * Deployments History vs. Deployment being used
-    * We deploy every time using `(timestamp()}` in the `aws_api_gateway_deployment` resource. If we do not, sometimes the 
-    deployment history has new deployments but the actual deployment in-use by the stage might be an older one.
-<br>
-
-## Upcoming Improvements
+## Upcoming/Recent Improvements
   * Want `aws_api_gateway_method_settings` to allow us to apply different method settings by stage and by method instead of choosing between the full override `*/*` or only a single method to manage (e.g. `{resource_path}/{http_method}`). Currently whatever the path is dictates all method settings for the stages that have been deployed. Method settings would be represented as a `map` just as we already do with api keys and usage plans.
   * Want a usage_plan to accept many API keys as a `list(string)`. Currenly a usage plan has a 1:1 relationship with API keys. This should be expanded so that many API keys can be associated with a single usage plan in the event multiple external consumers have similar API needs. This will reduce the number of usage plans needed.
-  * Want the ability to create/enable VPC Link in this module since we're already consuming the Network Load Balancer (NLB) outputs when we are using the `regional` or `edge` deployment type.
+  * <s>Want the ability to create/enable VPC Link in this module since we're already consuming the Network Load Balancer (NLB) outputs when we are using the `regional` or `edge` deployment type</s>.
+    * [Works well with our VPC Link module](https://registry.terraform.io/modules/adamwshero/api-gateway-vpc-link/aws/latest)
 
 ## The More You Know
   * CloudWatch Alarms
@@ -102,14 +98,14 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 ### Terraform Basic Example
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
 
 
 inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
-  put_rest_api_mode = "merge"
+  put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
   openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
@@ -146,14 +142,14 @@ inputs = {
 ### Terragrunt Basic Example
 ```
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
 }
 
 inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
-  put_rest_api_mode = "merge"
+  put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
   openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
