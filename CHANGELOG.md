@@ -1,3 +1,17 @@
+## 1.0.7 (November 20, 2022)
+
+BUG:
+  * Fixed issue where canary couldn't be destroyed after being created.
+  * Now we create the stage before it's destroyed.
+
+FEATURE:
+  * Added "Managed by Terraform" description to deployments.
+  * Append "Deployed on {timestamp}" to stage descriptions.
+
+CHORE:
+  * Improved notes for the `aws_api_gateway_deployment` resource.
+  * Updated README about `put_rest_api_mode` usage & known issues.
+
 ## 1.0.6 (November 1, 2022)
 
 CHORE:

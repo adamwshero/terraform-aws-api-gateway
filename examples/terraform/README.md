@@ -1,14 +1,14 @@
 ### Terraform Basic Example + Lambda (as authorizer)
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
 
 
 inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
-  put_rest_api_mode = "merge"
+  put_put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
   openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
@@ -45,14 +45,14 @@ inputs = {
 ### Terraform Example + Lambda (as authorizer) + Stage Canary + Method Settings
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
 
 
 inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
-  put_rest_api_mode = "merge"
+  put_put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
   openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
@@ -114,14 +114,14 @@ inputs = {
 ### Terraform Complete Example + Lambda (as authorizer) + Stage Canary + Method Settings + WAF
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
 
 
 inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
-  put_rest_api_mode = "merge"
+  put_put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
   openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
@@ -185,14 +185,14 @@ inputs = {
 ### Terraform Complete Example + Lambda (as authorizer) + Stage Canary + Method Settings + WAF + API Keys + Usage Plans
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.6"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
 
 
 inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
   endpoint_type     = ["REGIONAL"]
-  put_rest_api_mode = "merge"
+  put_put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
   openapi_definition = templatefile("${get_terragrunt_dir()}/openapi.yaml",
