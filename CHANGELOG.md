@@ -1,3 +1,8 @@
+## 1.0.8 (July 20, 2023)
+
+CHORE:
+  * Added sample architecture diagram for distributed model
+
 ## 1.0.7 (November 20, 2022)
 
 BUG:

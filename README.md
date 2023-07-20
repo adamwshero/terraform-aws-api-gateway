@@ -32,6 +32,9 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
   * Supports VPC Endpoints for `PRIVATE` type API's
 <br>
 
+## Distributed Architecture Example
+![](assets/public-api-distributed-model.png)
+
 ## Assumptions
   * Public API Scenario
     * You already have Network Load Balancer (NLB) with an IP type target group created if you are creating an API using the `regional` or `edge` deployment type.
