@@ -33,7 +33,7 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 <br>
 
 ## Distributed Architecture Example
-![](assets/public-api-distributed-model.png)
+![](https://github.com/adamwshero/terraform-aws-api-gateway/blob/main/assets/public-api-distributed-model.png)
 
 ## Assumptions
   * Public API Scenario
