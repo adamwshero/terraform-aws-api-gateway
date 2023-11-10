@@ -1,3 +1,8 @@
+## 1.1.0 (November 10, 2023)
+
+BUG:
+  * Fixed issue invalid_index error for new deploys
+
 ## 1.0.8 (July 20, 2023)
 
 CHORE:
