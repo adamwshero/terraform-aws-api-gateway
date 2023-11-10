@@ -26,7 +26,7 @@ variable "put_rest_api_mode" {
 variable "endpoint_type" {
   description = "(Required) List of endpoint types. This resource currently only supports managing a single value. Valid values: `EDGE`, `REGIONAL` or `PRIVATE`. If unspecified, defaults to `EDGE`. Must be declared as `REGIONAL` in non-Commercial partitions. If set to `PRIVATE` recommend to set put_rest_api_mode = merge to not cause the endpoints and associated Route53 records to be deleted. Refer to the documentation for more information on the difference between edge-optimized and regional APIs."
   type        = list(string)
-  default     = ["EDGE"]
+  default     = [ "EDGE" ]
 }
 
 #############################
@@ -72,7 +72,6 @@ variable "enable_canary" {
   description = "(Optional) Whether to use the values supplied for the canary and stage_variable_overrides or not."
   type        = bool
   default     = false
-
 }
 
 variable "stage_variable_overrides" {

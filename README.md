@@ -78,7 +78,8 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
       ```
   * (Deployments History vs. Deployment being used)
     * We deploy every time using `(timestamp()}` in the `aws_api_gateway_deployment` resource. If we do not, sometimes the 
-    deployment history has new deployments but the actual deployment in-use by the stage might be an older one.
+    deployment history has new deployments but the actual deployment in-use by the stage might be an older one. 
+    * Currently there is almost always one deployment, which is the most recent one. When there are multiple deployments in history, only the most recent will be used by default.
 <br>
 
 ## Upcoming/Recent Improvements

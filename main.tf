@@ -10,6 +10,8 @@ resource "aws_api_gateway_rest_api" "this" {
 }
 
 resource "aws_api_gateway_deployment" "this" {
+  count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
   rest_api_id = aws_api_gateway_rest_api.this.id
   description = "Managed by Terraform"
   triggers = {
@@ -27,7 +29,7 @@ resource "aws_api_gateway_deployment" "this" {
     #       https://github.com/hashicorp/terraform-provider-aws/issues/162
 
     # redeployment = sha1(jsonencode([
-    #   aws_api_gateway_rest_api.this.body 
+    #   aws_api_gateway_rest_api.this.body
     #   ]
     # ))
 
@@ -73,7 +75,7 @@ resource "aws_api_gateway_stage" "this" {
     }
   }
   lifecycle {
-    create_before_destroy = true
+    create_before_destroy = false
   }
 }
 
