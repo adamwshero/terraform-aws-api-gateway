@@ -242,6 +242,7 @@ No modules.
 | [aws_api_gateway_domain_name.regional_iam](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_domain_name) | resource |
 | [aws_api_gateway_method_settings.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_method_settings) | resource |
 | [aws_api_gateway_rest_api.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_rest_api) | resource |
+| [aws_api_gateway_rest_api_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_rest_api_policy) | resource |
 | [aws_api_gateway_stage.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage) | resource |
 | [aws_api_gateway_usage_plan.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_usage_plan) | resource |
 | [aws_api_gateway_usage_plan_key.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_usage_plan_key) | resource |
@@ -268,6 +269,7 @@ No modules.
 | <a name="input_client_name"></a> [client\_name](#input\_client\_name) | client name to use this api. | `string` | `null` | no |
 | <a name="input_cloudwatch_role_arn"></a> [cloudwatch\_role\_arn](#input\_cloudwatch\_role\_arn) | (Required) for the `api_gateway_account` resource. | `string` | n/a | yes |
 | <a name="input_create_api_domain_name"></a> [create\_api\_domain\_name](#input\_create\_api\_domain\_name) | Whether to create API domain name resource. | `bool` | `false` | no |
+| <a name="input_create_rest_api_policy"></a> [create\_rest\_api\_policy](#input\_create\_rest\_api\_policy) | Enables creation of the resource policy for a given API. | `bool` | `true` | no |
 | <a name="input_create_usage_plan"></a> [create\_usage\_plan](#input\_create\_usage\_plan) | Allows creation of a usage plan. (Requires `var.enable_api_key = true`) | `bool` | `false` | no |
 | <a name="input_data_trace_enabled"></a> [data\_trace\_enabled](#input\_data\_trace\_enabled) | (Optional) Whether data trace logging is enabled for this method, which effects the log entries pushed to Amazon CloudWatch Logs. | `bool` | `false` | no |
 | <a name="input_description"></a> [description](#input\_description) | (Optional) Description of the REST API. If importing an OpenAPI specification via the `body` argument, this corresponds to the `info.description` field. If the argument value is provided and is different than the OpenAPI value, the argument value will override the OpenAPI value. | `string` | `null` | no |
@@ -297,6 +299,7 @@ No modules.
 | <a name="input_put_rest_api_mode"></a> [put\_rest\_api\_mode](#input\_put\_rest\_api\_mode) | (Optional) Mode of the PutRestApi operation when importing an OpenAPI specification via the body argument (create or update operation). Valid values are merge and overwrite. If unspecificed, defaults to overwrite (for backwards compatibility). This corresponds to the x-amazon-apigateway-put-integration-method extension. If the argument value is provided and is different than the OpenAPI value, the argument value will override the OpenAPI value. | `string` | `"overwrite"` | no |
 | <a name="input_rate_limit"></a> [rate\_limit](#input\_rate\_limit) | (Optional) - The API request steady-state rate limit. | `number` | `10` | no |
 | <a name="input_require_authorization_for_cache_control"></a> [require\_authorization\_for\_cache\_control](#input\_require\_authorization\_for\_cache\_control) | (Optional) Whether authorization is required for a cache invalidation request. | `bool` | `true` | no |
+| <a name="input_rest_api_policy"></a> [rest\_api\_policy](#input\_rest\_api\_policy) | (Required) JSON formatted policy document that controls access to the API Gateway. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide | `string` | `""` | no |
 | <a name="input_stage_description"></a> [stage\_description](#input\_stage\_description) | (Optional) Description of the stage. | `string` | `null` | no |
 | <a name="input_stage_names"></a> [stage\_names](#input\_stage\_names) | (Required) Name of the stage(s). | `list(string)` | `null` | no |
 | <a name="input_stage_variable_overrides"></a> [stage\_variable\_overrides](#input\_stage\_variable\_overrides) | (Optional) Map of overridden stage variables (including new variables) for the canary deployment. | `any` | `{}` | no |
