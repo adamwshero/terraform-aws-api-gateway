@@ -1,3 +1,9 @@
+## 1.2.0 (November 17, 2023)
+
+FEATURE:
+  * Supports custom domains for REGIONAL & EDGE endpoints
+  * Supports optional resource policies
+
 ## 1.1.0 (November 10, 2023)
 
 BUG:

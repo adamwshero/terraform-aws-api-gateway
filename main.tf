@@ -5,7 +5,7 @@ resource "aws_api_gateway_rest_api" "this" {
   body              = var.openapi_definition
 
   endpoint_configuration {
-    types = var.endpoint_type
+    types = [ var.endpoint_type ]
   }
 }
 
@@ -23,8 +23,8 @@ resource "aws_api_gateway_deployment" "this" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
 
-    #       We can use this method if we want to isolate deploys to a specific 
-    #       resource or resource attribute. But for now we just deploy every time 
+    #       We can use this method if we want to isolate deploys to a specific
+    #       resource or resource attribute. But for now we just deploy every time
     #       with {timestamp()}.
     #       https://github.com/hashicorp/terraform-provider-aws/issues/162
 
@@ -34,7 +34,7 @@ resource "aws_api_gateway_deployment" "this" {
     # ))
 
     # We deploy the API every time Terraform is applied instead of using the
-    # above method of only applying when the body of the openapi.yaml is 
+    # above method of only applying when the body of the openapi.yaml is
     # updated.
     redeployment = "${timestamp()}"
   }
@@ -180,4 +180,136 @@ resource "aws_wafv2_web_acl_association" "this" {
   count        = var.enable_waf != false && length(var.stage_names) > 0 ? length(var.stage_names) : 0
   resource_arn = aws_api_gateway_stage.this[count.index].arn
   web_acl_arn  = var.waf_acl
+}
+
+# REGIONAL custom domain name
+resource "aws_api_gateway_domain_name" "regional_acm" {
+  count = var.create_api_domain_name && var.endpoint_type == "REGIONAL" && var.certificate_type == "ACM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  domain_name = var.domain_names[count.index]
+
+  regional_certificate_arn = var.domain_certificate_arn
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+
+  dynamic "mutual_tls_authentication" {
+    for_each = length(keys(var.mutual_tls_authentication)) == 0 ? [] : [var.mutual_tls_authentication]
+
+    content {
+      truststore_uri     = mutual_tls_authentication.value.truststore_uri
+      truststore_version = try(mutual_tls_authentication.value.truststore_version, null)
+    }
+  }
+}
+
+resource "aws_api_gateway_base_path_mapping" "regional_acm" {
+  count = var.create_api_domain_name && var.endpoint_type == "REGIONAL" && var.certificate_type == "ACM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  api_id      = aws_api_gateway_rest_api.this.id
+  domain_name = aws_api_gateway_domain_name.regional_acm[count.index].id
+  stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+}
+
+resource "aws_api_gateway_domain_name" "regional_iam" {
+  count = var.create_api_domain_name && var.endpoint_type == "REGIONAL" && var.certificate_type == "IAM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  domain_name = var.domain_names[count.index]
+
+  regional_certificate_name = var.domain_certificate_name
+  certificate_body          = var.iam_certificate_body
+  certificate_chain         = var.iam_certificate_chain
+  certificate_private_key   = var.iam_certificate_private_key
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+
+  dynamic "mutual_tls_authentication" {
+    for_each = length(keys(var.mutual_tls_authentication)) == 0 ? [] : [var.mutual_tls_authentication]
+
+    content {
+      truststore_uri     = mutual_tls_authentication.value.truststore_uri
+      truststore_version = try(mutual_tls_authentication.value.truststore_version, null)
+    }
+  }
+}
+
+resource "aws_api_gateway_base_path_mapping" "regional_iam" {
+  count = var.create_api_domain_name && var.endpoint_type == "REGIONAL" && var.certificate_type == "IAM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  api_id      = aws_api_gateway_rest_api.this.id
+  domain_name = aws_api_gateway_domain_name.regional_iam[count.index].id
+  stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+}
+
+
+resource "aws_api_gateway_domain_name" "edge_acm" {
+  count = var.create_api_domain_name && var.endpoint_type == "EDGE" && var.certificate_type == "ACM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  domain_name = var.domain_names[count.index]
+
+  certificate_arn = var.domain_certificate_arn
+
+  endpoint_configuration {
+    types = ["EDGE"]
+  }
+
+  dynamic "mutual_tls_authentication" {
+    for_each = length(keys(var.mutual_tls_authentication)) == 0 ? [] : [var.mutual_tls_authentication]
+
+    content {
+      truststore_uri     = mutual_tls_authentication.value.truststore_uri
+      truststore_version = try(mutual_tls_authentication.value.truststore_version, null)
+    }
+  }
+}
+
+resource "aws_api_gateway_base_path_mapping" "edge_acm" {
+  count = var.create_api_domain_name && var.endpoint_type == "EDGE" && var.certificate_type == "ACM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  api_id      = aws_api_gateway_rest_api.this.id
+  domain_name = aws_api_gateway_domain_name.edge_acm[count.index].id
+  stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+}
+
+# EDGE custom domain name
+resource "aws_api_gateway_domain_name" "edge_iam" {
+  count = var.create_api_domain_name && var.endpoint_type == "EDGE" && var.certificate_type == "IAM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  domain_name = var.domain_names[count.index]
+
+  certificate_name          = var.domain_certificate_name
+  certificate_body          = var.iam_certificate_body
+  certificate_chain         = var.iam_certificate_chain
+  certificate_private_key   = var.iam_certificate_private_key
+
+  endpoint_configuration {
+    types = ["EDGE"]
+  }
+
+  dynamic "mutual_tls_authentication" {
+    for_each = length(keys(var.mutual_tls_authentication)) == 0 ? [] : [var.mutual_tls_authentication]
+
+    content {
+      truststore_uri     = mutual_tls_authentication.value.truststore_uri
+      truststore_version = try(mutual_tls_authentication.value.truststore_version, null)
+    }
+  }
+}
+
+resource "aws_api_gateway_base_path_mapping" "edge_iam" {
+  count = var.create_api_domain_name && var.endpoint_type == "EDGE" && var.certificate_type == "IAM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  api_id      = aws_api_gateway_rest_api.this.id
+  domain_name = aws_api_gateway_domain_name.edge_iam[count.index].id
+  stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+}
+
+resource "aws_api_gateway_rest_api_policy" "this" {
+  count = var.create_rest_api_policy && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  policy      = var.rest_api_policy
 }

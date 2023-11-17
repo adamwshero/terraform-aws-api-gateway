@@ -25,8 +25,8 @@ variable "put_rest_api_mode" {
 
 variable "endpoint_type" {
   description = "(Required) List of endpoint types. This resource currently only supports managing a single value. Valid values: `EDGE`, `REGIONAL` or `PRIVATE`. If unspecified, defaults to `EDGE`. Must be declared as `REGIONAL` in non-Commercial partitions. If set to `PRIVATE` recommend to set put_rest_api_mode = merge to not cause the endpoints and associated Route53 records to be deleted. Refer to the documentation for more information on the difference between edge-optimized and regional APIs."
-  type        = list(string)
-  default     = [ "EDGE" ]
+  type        = string
+  default     = "EDGE"
 }
 
 #############################
@@ -282,6 +282,79 @@ variable "rate_limit" {
   description = "(Optional) - The API request steady-state rate limit."
   type        = number
   default     = 10
+}
+
+##############################
+# API Gateway domain variables
+##############################
+
+variable "create_api_domain_name" {
+  description = "Whether to create API domain name resource."
+  type        = bool
+  default     = false
+}
+
+variable "domain_names" {
+  description = "Fully-qualified domain name to register. The domain names to use for API gateway it will use the index of stage_names to select the domain name."
+  type        = list(string)
+  default     = null
+}
+
+variable "domain_certificate_arn" {
+  description = "The ARN of an AWS-managed certificate that will be used by the endpoint for the domain name."
+  type        = string
+  default     = null
+}
+
+variable "mutual_tls_authentication" {
+  description = "An Amazon S3 URL that specifies the truststore for mutual TLS authentication as well as version, keyed at uri and version"
+  type        = map(string)
+  default     = {}
+}
+
+variable "certificate_type" {
+  description = "This resource currently only supports managing a single value. Valid values: `ACM` or `IAM`. If unspecified, defaults to `acm`"
+  type        = string
+  default     = "ACM"
+}
+
+variable "domain_certificate_name" {
+  description = "Unique name to use when registering this certificate as an IAM server certificate. Conflicts with certificate_arn, regional_certificate_arn, and regional_certificate_name. Required if certificate_arn is not set."
+  type        = string
+  default     = null
+}
+
+variable "iam_certificate_body" {
+  description = "Certificate issued for the domain name being registered, in PEM format. Only valid for EDGE endpoint configuration type. Conflicts with certificate_arn, regional_certificate_arn, and regional_certificate_name"
+  type        = string
+  default     = null
+}
+
+variable "iam_certificate_chain" {
+  description = "Certificate for the CA that issued the certificate, along with any intermediate CA certificates required to create an unbroken chain to a certificate trusted by the intended API clients. Only valid for EDGE endpoint configuration type. Conflicts with certificate_arn, regional_certificate_arn, and regional_certificate_name."
+  type        = string
+  default     = null
+}
+
+variable "iam_certificate_private_key" {
+  description = "Private key associated with the domain certificate given in certificate_body. Only valid for EDGE endpoint configuration type. Conflicts with certificate_arn, regional_certificate_arn, and regional_certificate_name."
+  type        = string
+  default     = null
+}
+
+##############################
+# REST API Resource Policy
+##############################
+variable "create_rest_api_policy" {
+  description = "Enables creation of the resource policy for a given API."
+  type        = bool
+  default     = true
+}
+
+variable "rest_api_policy" {
+  description = "(Required) JSON formatted policy document that controls access to the API Gateway. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide"
+  type        = string
+  default     = ""
 }
 
 ################
