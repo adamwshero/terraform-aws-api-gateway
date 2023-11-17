@@ -284,6 +284,41 @@ variable "rate_limit" {
   default     = 10
 }
 
+##############################
+# API Gateway doman variables
+##############################
+
+variable "create_api_domain_name" {
+  description = "Whether to create API domain name resource"
+  type        = bool
+  default     = false
+}
+
+variable "domain_names" {
+  description = "The domain names to use for API gateway it will use the index of stage_names to select the domain name"
+  type        = list(string)
+  default     = null
+}
+
+variable "domain_certificate_arn" {
+  description = "The ARN of an AWS-managed certificate that will be used by the endpoint for the domain name"
+  type        = string
+  default     = null
+}
+
+variable "domain_ownership_verification_certificate_arn" {
+  description = "ARN of the AWS-issued certificate used to validate custom domain ownership (when certificate_arn is issued via an ACM Private CA or mutual_tls_authentication is configured with an ACM-imported certificate.)"
+  type        = string
+  default     = null
+}
+
+variable "mutual_tls_authentication" {
+  description = "An Amazon S3 URL that specifies the truststore for mutual TLS authentication as well as version, keyed at uri and version"
+  type        = map(string)
+  default     = {}
+}
+
+
 ################
 # WAF Variables
 ################

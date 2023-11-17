@@ -23,8 +23,8 @@ resource "aws_api_gateway_deployment" "this" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
 
-    #       We can use this method if we want to isolate deploys to a specific 
-    #       resource or resource attribute. But for now we just deploy every time 
+    #       We can use this method if we want to isolate deploys to a specific
+    #       resource or resource attribute. But for now we just deploy every time
     #       with {timestamp()}.
     #       https://github.com/hashicorp/terraform-provider-aws/issues/162
 
@@ -34,7 +34,7 @@ resource "aws_api_gateway_deployment" "this" {
     # ))
 
     # We deploy the API every time Terraform is applied instead of using the
-    # above method of only applying when the body of the openapi.yaml is 
+    # above method of only applying when the body of the openapi.yaml is
     # updated.
     redeployment = "${timestamp()}"
   }
@@ -180,4 +180,34 @@ resource "aws_wafv2_web_acl_association" "this" {
   count        = var.enable_waf != false && length(var.stage_names) > 0 ? length(var.stage_names) : 0
   resource_arn = aws_api_gateway_stage.this[count.index].arn
   web_acl_arn  = var.waf_acl
+}
+
+resource "aws_apigatewayv2_domain_name" "this" {
+  count = var.create_api_domain_name && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  domain_name = var.domain_names[count.index]
+
+  domain_name_configuration {
+    certificate_arn                        = var.domain_certificate_arn
+    ownership_verification_certificate_arn = var.domain_ownership_verification_certificate_arn
+    endpoint_type                          = "REGIONAL"
+    security_policy                        = "TLS_1_2"
+  }
+
+  dynamic "mutual_tls_authentication" {
+    for_each = length(keys(var.mutual_tls_authentication)) == 0 ? [] : [var.mutual_tls_authentication]
+
+    content {
+      truststore_uri     = mutual_tls_authentication.value.truststore_uri
+      truststore_version = try(mutual_tls_authentication.value.truststore_version, null)
+    }
+  }
+}
+
+resource "aws_apigatewayv2_api_mapping" "this" {
+  count = var.create_api_domain_name && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  api_id      = aws_api_gateway_rest_api.this.id
+  domain_name = aws_apigatewayv2_domain_name.this[count.index].id
+  stage       = aws_api_gateway_stage.this[count.index].stage_name
 }
