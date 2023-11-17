@@ -306,3 +306,10 @@ resource "aws_api_gateway_base_path_mapping" "edge_iam" {
   domain_name = aws_api_gateway_domain_name.edge_iam[count.index].id
   stage_name  = aws_api_gateway_stage.this[count.index].stage_name
 }
+
+resource "aws_api_gateway_rest_api_policy" "this" {
+  count = var.create_rest_api_policy && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  policy      = var.rest_api_policy
+}

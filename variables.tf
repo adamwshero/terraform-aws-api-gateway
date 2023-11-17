@@ -342,6 +342,21 @@ variable "iam_certificate_private_key" {
   default     = null
 }
 
+##############################
+# REST API Resource Policy
+##############################
+variable "create_rest_api_policy" {
+  description = "Enables creation of the resource policy for a given API."
+  type        = bool
+  default     = true
+}
+
+variable "rest_api_policy" {
+  description = "(Required) JSON formatted policy document that controls access to the API Gateway. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide"
+  type        = string
+  default     = ""
+}
+
 ################
 # WAF Variables
 ################

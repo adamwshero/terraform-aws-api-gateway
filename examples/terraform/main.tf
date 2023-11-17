@@ -6,6 +6,17 @@ module "rest-api" {
   endpoint_type     = ["REGIONAL"]
   put_put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
+  // API Custom Domain
+  create_api_domain_name = true
+  domain_names           = ["mydomain.something.com"]
+  domain_certificate_arn = "arn:aws:acm:us-east-1:1111111111111:certificate/1aa11a11-a1a1-1a11-aaa1-1111aaaa1a1a"
+
+  // API Resource Policy
+  create_rest_api_policy = true
+  rest_api_policy = templatefile("${get_terragrunt_dir()}/api_policy.json.tpl",
+    {}
+  )
+
   // API Definition & Vars
   openapi_definition = templatefile("${path.module}/openapi.yaml",
     {

@@ -33,8 +33,12 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
   * Supports VPC Endpoints for `PRIVATE` type API's
 <br>
 
-## Distributed Architecture Example
-![](https://github.com/adamwshero/terraform-aws-api-gateway/blob/main/assets/public-api-distributed-model.png)
+## Distributed Architecture Example Using PrivateLink (Preferred for public API's)
+![](assets/public-api-distributed-model.png)
+
+## Distributed Architecture Example Without PrivateLink (Preferred for private API's)
+  - COMING SOON...
+<!-- ![](assets/public-api-distributed-model-private-api.png) -->
 
 ## Assumptions
   * Public API Scenario
