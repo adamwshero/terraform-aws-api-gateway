@@ -25,8 +25,8 @@ variable "put_rest_api_mode" {
 
 variable "endpoint_type" {
   description = "(Required) List of endpoint types. This resource currently only supports managing a single value. Valid values: `EDGE`, `REGIONAL` or `PRIVATE`. If unspecified, defaults to `EDGE`. Must be declared as `REGIONAL` in non-Commercial partitions. If set to `PRIVATE` recommend to set put_rest_api_mode = merge to not cause the endpoints and associated Route53 records to be deleted. Refer to the documentation for more information on the difference between edge-optimized and regional APIs."
-  type        = list(string)
-  default     = [ "EDGE" ]
+  type        = string
+  default     = "EDGE"
 }
 
 #############################
@@ -285,29 +285,23 @@ variable "rate_limit" {
 }
 
 ##############################
-# API Gateway doman variables
+# API Gateway domain variables
 ##############################
 
 variable "create_api_domain_name" {
-  description = "Whether to create API domain name resource"
+  description = "Whether to create API domain name resource."
   type        = bool
   default     = false
 }
 
 variable "domain_names" {
-  description = "The domain names to use for API gateway it will use the index of stage_names to select the domain name"
+  description = "Fully-qualified domain name to register. The domain names to use for API gateway it will use the index of stage_names to select the domain name."
   type        = list(string)
   default     = null
 }
 
 variable "domain_certificate_arn" {
-  description = "The ARN of an AWS-managed certificate that will be used by the endpoint for the domain name"
-  type        = string
-  default     = null
-}
-
-variable "domain_ownership_verification_certificate_arn" {
-  description = "ARN of the AWS-issued certificate used to validate custom domain ownership (when certificate_arn is issued via an ACM Private CA or mutual_tls_authentication is configured with an ACM-imported certificate.)"
+  description = "The ARN of an AWS-managed certificate that will be used by the endpoint for the domain name."
   type        = string
   default     = null
 }
@@ -318,6 +312,35 @@ variable "mutual_tls_authentication" {
   default     = {}
 }
 
+variable "certificate_type" {
+  description = "This resource currently only supports managing a single value. Valid values: `ACM` or `IAM`. If unspecified, defaults to `acm`"
+  type        = string
+  default     = "ACM"
+}
+
+variable "domain_certificate_name" {
+  description = "Unique name to use when registering this certificate as an IAM server certificate. Conflicts with certificate_arn, regional_certificate_arn, and regional_certificate_name. Required if certificate_arn is not set."
+  type        = string
+  default     = null
+}
+
+variable "iam_certificate_body" {
+  description = "Certificate issued for the domain name being registered, in PEM format. Only valid for EDGE endpoint configuration type. Conflicts with certificate_arn, regional_certificate_arn, and regional_certificate_name"
+  type        = string
+  default     = null
+}
+
+variable "iam_certificate_chain" {
+  description = "Certificate for the CA that issued the certificate, along with any intermediate CA certificates required to create an unbroken chain to a certificate trusted by the intended API clients. Only valid for EDGE endpoint configuration type. Conflicts with certificate_arn, regional_certificate_arn, and regional_certificate_name."
+  type        = string
+  default     = null
+}
+
+variable "iam_certificate_private_key" {
+  description = "Private key associated with the domain certificate given in certificate_body. Only valid for EDGE endpoint configuration type. Conflicts with certificate_arn, regional_certificate_arn, and regional_certificate_name."
+  type        = string
+  default     = null
+}
 
 ################
 # WAF Variables
