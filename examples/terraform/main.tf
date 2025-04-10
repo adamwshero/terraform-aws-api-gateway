@@ -48,7 +48,7 @@ module "rest-api" {
 
   // Method Settings
   method_settings = {
-    "dev /*/GET" = {
+    "dev /*/*" = {
       metrics_enabled                            = true
       logging_level                              = "INFO"
       data_trace_enabled                         = true
