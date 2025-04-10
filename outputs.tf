@@ -43,3 +43,7 @@ output "api_gateway_rest_api_stage_web_acl" {
   value       = aws_api_gateway_stage.this[0].web_acl_arn
 }
 
+output "aws_api_gateway_domain_name" {
+  description = "api gateway domain name"
+  value = { for k, v in aws_api_gateway_domain_name.regional_acm : k => v }
+}

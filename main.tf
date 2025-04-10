@@ -3,6 +3,7 @@ resource "aws_api_gateway_rest_api" "this" {
   description       = var.description
   put_rest_api_mode = var.put_rest_api_mode
   body              = var.openapi_definition
+  tags              = var.tags
 
   endpoint_configuration {
     types = [ var.endpoint_type ]
@@ -80,24 +81,32 @@ resource "aws_api_gateway_stage" "this" {
 }
 
 resource "aws_api_gateway_method_settings" "this" {
-  count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
+  for_each = var.method_settings
 
   rest_api_id = aws_api_gateway_rest_api.this.id
-  stage_name  = aws_api_gateway_stage.this[count.index].stage_name
-  method_path = var.method_path
-  settings {
-    metrics_enabled                            = var.metrics_enabled
-    logging_level                              = var.logging_level
-    data_trace_enabled                         = var.data_trace_enabled
-    throttling_burst_limit                     = var.throttling_burst_limit
-    throttling_rate_limit                      = var.throttling_rate_limit
-    caching_enabled                            = var.caching_enabled
-    cache_ttl_in_seconds                       = var.cache_ttl_in_seconds
-    cache_data_encrypted                       = var.cache_data_encrypted
-    require_authorization_for_cache_control    = var.require_authorization_for_cache_control
-    unauthorized_cache_control_header_strategy = var.unauthorized_cache_control_header_strategy
+  stage_name  = element(split(" ", each.key), 0)
+
+  # Extract method path after the stage name, formatted correctly
+  method_path = join("/", slice(split(" ", each.key), 1, length(split(" ", each.key))))
+
+  dynamic "settings" {
+    for_each = length(var.method_settings) > 0 ? [true] : []
+    content {
+      metrics_enabled                            = lookup(each.value, "metrics_enabled", false)
+      logging_level                              = lookup(each.value, "logging_level", "OFF")
+      data_trace_enabled                         = lookup(each.value, "data_trace_enabled", false)
+      throttling_burst_limit                     = lookup(each.value, "throttling_burst_limit", 0)
+      throttling_rate_limit                      = lookup(each.value, "throttling_rate_limit", 0)
+      caching_enabled                            = lookup(each.value, "caching_enabled", false)
+      cache_ttl_in_seconds                       = lookup(each.value, "cache_ttl_in_seconds", 0)
+      cache_data_encrypted                       = lookup(each.value, "cache_data_encrypted", false)
+      require_authorization_for_cache_control    = lookup(each.value, "require_authorization_for_cache_control", false)
+      unauthorized_cache_control_header_strategy = lookup(each.value, "unauthorized_cache_control_header_strategy", "FAIL_WITH_403")
+    }
   }
 }
+
+
 
 resource "aws_api_gateway_account" "this" {
   cloudwatch_role_arn = var.cloudwatch_role_arn
@@ -187,11 +196,9 @@ resource "aws_api_gateway_domain_name" "regional_acm" {
   count = var.create_api_domain_name && var.endpoint_type == "REGIONAL" && var.certificate_type == "ACM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
   domain_name = var.domain_names[count.index]
-
   regional_certificate_arn = var.domain_certificate_arn
-
   endpoint_configuration {
-    types = ["REGIONAL"]
+    types = "REGIONAL"
   }
 
   dynamic "mutual_tls_authentication" {
@@ -223,7 +230,7 @@ resource "aws_api_gateway_domain_name" "regional_iam" {
   certificate_private_key   = var.iam_certificate_private_key
 
   endpoint_configuration {
-    types = ["REGIONAL"]
+    types = "REGIONAL"
   }
 
   dynamic "mutual_tls_authentication" {
@@ -312,4 +319,13 @@ resource "aws_api_gateway_rest_api_policy" "this" {
 
   rest_api_id = aws_api_gateway_rest_api.this.id
   policy      = var.rest_api_policy
+}
+
+resource "aws_api_gateway_model" "this" {
+  for_each = var.models
+  rest_api_id  = aws_api_gateway_rest_api.this.id
+  name         = each.key
+  description  = lookup(each.value,"description","")
+  content_type = lookup(each.value,"content_type","")
+  schema = lookup(each.value,"schema",{})
 }
