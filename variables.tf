@@ -1,3 +1,8 @@
+variable "tags" {
+  description = "A map of tags to assign to resources."
+  type        = map(string)
+  default     = {}
+}
 #####################
 # REST API Variables
 #####################
@@ -108,12 +113,19 @@ variable "access_log_format" {
   type        = string
 }
 
+variable "models" {
+  description = ""
+  type        = any
+  default     = {}
+}
+
 ########################################
 # API Gateway Method Settings Variables
 ########################################
-variable "method_path" {
-  description = "(Required) Method path defined as `{resource_path}/{http_method}` for an individual method override, or `*/*` for overriding all methods in the stage. Ensure to trim any leading forward slashes in the path."
-  type        = string
+variable "method_settings" {
+  description = "Stage method settings"
+  type = any
+  default = {} 
 }
 
 variable "metrics_enabled" {
@@ -377,6 +389,7 @@ variable "waf_acl" {
 variable "cloudwatch_role_arn" {
   description = "(Required) for the `api_gateway_account` resource."
   type        = string
+  default     = null
 }
 
 variable "log_group_name" {

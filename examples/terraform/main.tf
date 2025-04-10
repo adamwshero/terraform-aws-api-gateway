@@ -1,9 +1,9 @@
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.3.0"
 
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
-  endpoint_type     = ["REGIONAL"]
+  endpoint_type     = "REGIONAL"
   put_put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Custom Domain
@@ -47,24 +47,27 @@ module "rest-api" {
   }
 
   // Method Settings
-  method_path                                = "*/*"
-  metrics_enabled                            = true
-  data_trace_enabled                         = true
-  log_level                                  = "INFO"
-  throttling_burst_limit                     = 5000
-  throttling_rate_limit                      = 10000
-  caching_enabled                            = true
-  cache_data_encrypted                       = false
-  cache_ttl_in_seconds                       = 300
-  require_authorization_for_cache_control    = true
-  unauthorized_cache_control_header_strategy = "SUCCEED_WITH_RESPONSE_HEADER"
+  method_settings = {
+    "dev /*/*" = {
+      metrics_enabled                            = true
+      logging_level                              = "INFO"
+      data_trace_enabled                         = true
+      throttling_burst_limit                     = 100
+      throttling_rate_limit                      = 100
+      caching_enabled                            = true
+      cache_ttl_in_seconds                       = 300
+      cache_data_encrypted                       = true
+      require_authorization_for_cache_control    = true
+      unauthorized_cache_control_header_strategy = "FAIL_WITH_403"
+    }
+  }
 
   // Security
   enable_waf = true
   waf_acl    = "arn:aws:wafv2:us-east-1:111111111111:regional/webacl/my-app-nonprod/f111b1a1-1c11-1ea1-a111-cd1fe111b11a"
 
   // Execution Role
-  cloudwatch_role_arn    = "arn:aws:logs:us-east-1:111111111111:log-group:/aws/lambda/my-app-dev"
+  cloudwatch_role_arn    = "arn:aws:iam::111111111111:role/my-app"
   cloudwatch_policy_name = "my-app-dev"
 
   // Usage Plans & API Keys

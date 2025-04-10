@@ -1,3 +1,19 @@
+## 1.3.0 (April 10, 2025)
+
+FEATURE:
+  * Supports many method settings & paths for each stage
+  * Supports models
+  * Add output for API Gateway domain name
+
+CHORE:
+  * Add tags to the API
+  * Remove method path variable
+  * Fix existing errors in examples & update examples
+
+BUG:
+  * Limit hashicorp/aws provider to `5.75.0` due to breaking changes using `5.76.0`
+    * Error found for aws_api_gateway_stage: The argument "deployment_id" is required, but no definition was found.
+
 ## 1.2.0 (November 17, 2023)
 
 FEATURE:
@@ -14,7 +30,7 @@ BUG:
 CHORE:
   * Added sample architecture diagram for distributed model
 
-## 1.0.7 (November 20, 2022)
+## 1.3.0 (November 20, 2022)
 
 BUG:
   * Fixed issue where canary couldn't be destroyed after being created.

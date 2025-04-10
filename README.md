@@ -22,6 +22,8 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 ## Module Capabilities
   * Uses OpenAPI 3.x Specification
   * Deploy REST API to many stages
+  * Supports many method settings & paths for each stage
+  * Supports models
   * Supports creation of many API Keys
   * Supports creation of many stages
   * Supports stage canaries.
@@ -108,13 +110,13 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 ### Terraform Basic Example
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.3.0"
 
 
 inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
-  endpoint_type     = ["REGIONAL"]
+  endpoint_type     = "REGIONAL"
   put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
@@ -133,13 +135,26 @@ inputs = {
   access_log_format     = templatefile("${get_terragrunt_dir()}/log_format.json.tpl", {})
 
   // Method Settings
-  method_path = "*/*"
+  method_settings = {
+    "dev /*/*" = {
+      metrics_enabled                            = true
+      logging_level                              = "INFO"
+      data_trace_enabled                         = true
+      throttling_burst_limit                     = 100
+      throttling_rate_limit                      = 100
+      caching_enabled                            = true
+      cache_ttl_in_seconds                       = 300
+      cache_data_encrypted                       = true
+      require_authorization_for_cache_control    = true
+      unauthorized_cache_control_header_strategy = "FAIL_WITH_403"
+    }
+  }
 
   // Security
   enable_waf = false
 
   // Execution Role
-  cloudwatch_role_arn    = "arn:aws:logs:us-east-1:111111111111:log-group:/aws/lambda/my-app-dev"
+  cloudwatch_role_arn    = "arn:aws:iam::111111111111:role/my-app"
   cloudwatch_policy_name = "my-app-dev"
 
   // Usage Plans & API Keys
@@ -152,13 +167,13 @@ inputs = {
 ### Terragrunt Basic Example
 ```
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.0.7"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.3.0"
 }
 
 inputs = {
   api_name          = "my-app-dev"
   description       = "Development API for the My App service."
-  endpoint_type     = ["REGIONAL"]
+  endpoint_type     = "REGIONAL"
   put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Definition & Vars
@@ -177,13 +192,26 @@ inputs = {
   access_log_format = templatefile("${get_terragrunt_dir()}/log_format.json.tpl", {})
 
   // Method Settings
-  method_path = "*/*"
+  method_settings = {
+    "dev /*/*" = {
+      metrics_enabled                            = true
+      logging_level                              = "INFO"
+      data_trace_enabled                         = true
+      throttling_burst_limit                     = 100
+      throttling_rate_limit                      = 100
+      caching_enabled                            = true
+      cache_ttl_in_seconds                       = 300
+      cache_data_encrypted                       = true
+      require_authorization_for_cache_control    = true
+      unauthorized_cache_control_header_strategy = "FAIL_WITH_403"
+    }
+  }
 
   // Security
   enable_waf = false
 
   // Execution Role
-  cloudwatch_role_arn    = "arn:aws:logs:us-east-1:111111111111:log-group:/aws/lambda/my-app-dev"
+  cloudwatch_role_arn    = "arn:aws:iam::111111111111:role/my-app"
   cloudwatch_policy_name = "my-app-dev"
 
   // Usage Plans & API Keys
@@ -203,6 +231,8 @@ inputs = {
     - https://github.com/OAI/OpenAPI-Specification
     - https://spec.openapis.org/oas/v3.1.0#openapi-specification
     - https://swagger.io/docs/specification/about/
+  - IAM Role & Policy requirements for CloudWatch Logging
+    - https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html
 
 <!-- DO NOT REMOVE THE LINE BELOW  Self generated TF DOCS -->
 <!-- Generated with https://github.com/terraform-docs/terraform-docs
@@ -212,14 +242,14 @@ inputs = {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.30.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.5.0, < 5.75.0 |
 | <a name="requirement_terragrunt"></a> [terragrunt](#requirement\_terragrunt) | >= 0.28.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.30.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.5.0, < 5.75.0 |
 
 ## Modules
 
@@ -241,6 +271,7 @@ No modules.
 | [aws_api_gateway_domain_name.regional_acm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_domain_name) | resource |
 | [aws_api_gateway_domain_name.regional_iam](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_domain_name) | resource |
 | [aws_api_gateway_method_settings.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_method_settings) | resource |
+| [aws_api_gateway_model.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_model) | resource |
 | [aws_api_gateway_rest_api.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_rest_api) | resource |
 | [aws_api_gateway_rest_api_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_rest_api_policy) | resource |
 | [aws_api_gateway_stage.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage) | resource |
@@ -256,7 +287,7 @@ No modules.
 | <a name="input_access_log_format"></a> [access\_log\_format](#input\_access\_log\_format) | (Required) Formatting and values recorded in the logs. For more information on configuring the log format rules visit the AWS documentation | `string` | n/a | yes |
 | <a name="input_api_key_description"></a> [api\_key\_description](#input\_api\_key\_description) | (Optional) API key description. Defaults to `Managed by Terraform`. | `string` | `null` | no |
 | <a name="input_api_key_name"></a> [api\_key\_name](#input\_api\_key\_name) | (Required) Name of the API key. | `string` | `null` | no |
-| <a name="input_api_keys"></a> [api\_keys](#input\_api\_keys) | Map of objects that define the usage plan to be created. | <pre>list(<br>    object({<br>      name       = string<br>      key_type   = string<br>      usage_plan = string<br>    })<br>  )</pre> | <pre>[<br>  {<br>    "key_type": null,<br>    "name": null,<br>    "usage_plan": null<br>  }<br>]</pre> | no |
+| <a name="input_api_keys"></a> [api\_keys](#input\_api\_keys) | Map of objects that define the usage plan to be created. | <pre>list(<br/>    object({<br/>      name       = string<br/>      key_type   = string<br/>      usage_plan = string<br/>    })<br/>  )</pre> | <pre>[<br/>  {<br/>    "key_type": null,<br/>    "name": null,<br/>    "usage_plan": null<br/>  }<br/>]</pre> | no |
 | <a name="input_api_name"></a> [api\_name](#input\_api\_name) | (Required) Name of the REST API. If importing an OpenAPI specification via the `body` argument, this corresponds to the `info.title` field. If the argument value is different than the OpenAPI value, the argument value will override the OpenAPI value. | `string` | `null` | no |
 | <a name="input_burst_limit"></a> [burst\_limit](#input\_burst\_limit) | (Optional) - The API request burst limit, the maximum rate limit over a time ranging from one to a few seconds, depending upon whether the underlying token bucket is at its full capacity. | `number` | `5` | no |
 | <a name="input_cache_cluster_enabled"></a> [cache\_cluster\_enabled](#input\_cache\_cluster\_enabled) | (Optional) Whether a cache cluster is enabled for the stage. | `bool` | `true` | no |
@@ -267,7 +298,7 @@ No modules.
 | <a name="input_certificate_type"></a> [certificate\_type](#input\_certificate\_type) | This resource currently only supports managing a single value. Valid values: `ACM` or `IAM`. If unspecified, defaults to `acm` | `string` | `"ACM"` | no |
 | <a name="input_client_certificate_id"></a> [client\_certificate\_id](#input\_client\_certificate\_id) | (Optional) Identifier of a client certificate for the stage. | `string` | `null` | no |
 | <a name="input_client_name"></a> [client\_name](#input\_client\_name) | client name to use this api. | `string` | `null` | no |
-| <a name="input_cloudwatch_role_arn"></a> [cloudwatch\_role\_arn](#input\_cloudwatch\_role\_arn) | (Required) for the `api_gateway_account` resource. | `string` | n/a | yes |
+| <a name="input_cloudwatch_role_arn"></a> [cloudwatch\_role\_arn](#input\_cloudwatch\_role\_arn) | (Required) for the `api_gateway_account` resource. | `string` | `null` | no |
 | <a name="input_create_api_domain_name"></a> [create\_api\_domain\_name](#input\_create\_api\_domain\_name) | Whether to create API domain name resource. | `bool` | `false` | no |
 | <a name="input_create_rest_api_policy"></a> [create\_rest\_api\_policy](#input\_create\_rest\_api\_policy) | Enables creation of the resource policy for a given API. | `bool` | `true` | no |
 | <a name="input_create_usage_plan"></a> [create\_usage\_plan](#input\_create\_usage\_plan) | Allows creation of a usage plan. (Requires `var.enable_api_key = true`) | `bool` | `false` | no |
@@ -289,8 +320,9 @@ No modules.
 | <a name="input_log_group_name"></a> [log\_group\_name](#input\_log\_group\_name) | (Optional, Forces new resource) The name of the log group. If omitted, Terraform will assign a random, unique name. | `string` | `null` | no |
 | <a name="input_log_group_retention_in_days"></a> [log\_group\_retention\_in\_days](#input\_log\_group\_retention\_in\_days) | (Optional) Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire. | `string` | `7` | no |
 | <a name="input_logging_level"></a> [logging\_level](#input\_logging\_level) | (Optional) Logging level for this method, which effects the log entries pushed to Amazon CloudWatch Logs. The available levels are OFF, ERROR, and INFO. | `string` | `"INFO"` | no |
-| <a name="input_method_path"></a> [method\_path](#input\_method\_path) | (Required) Method path defined as `{resource_path}/{http_method}` for an individual method override, or `*/*` for overriding all methods in the stage. Ensure to trim any leading forward slashes in the path. | `string` | n/a | yes |
+| <a name="input_method_settings"></a> [method\_settings](#input\_method\_settings) | Stage method settings | `any` | `{}` | no |
 | <a name="input_metrics_enabled"></a> [metrics\_enabled](#input\_metrics\_enabled) | (Optional) Whether Amazon CloudWatch metrics are enabled for this method. | `string` | `true` | no |
+| <a name="input_models"></a> [models](#input\_models) | n/a | `any` | `{}` | no |
 | <a name="input_mutual_tls_authentication"></a> [mutual\_tls\_authentication](#input\_mutual\_tls\_authentication) | An Amazon S3 URL that specifies the truststore for mutual TLS authentication as well as version, keyed at uri and version | `map(string)` | `{}` | no |
 | <a name="input_offset"></a> [offset](#input\_offset) | (Optional) - Number of requests subtracted from the given limit in the initial time period. | `number` | `2` | no |
 | <a name="input_openapi_definition"></a> [openapi\_definition](#input\_openapi\_definition) | (Required) YAML formatted definition file using OpenAPI 3.x specification. This definition contains all API configuration inputs. Any inputs used in Terraform will override inputs in the definition. | `string` | n/a | yes |
@@ -304,10 +336,11 @@ No modules.
 | <a name="input_stage_names"></a> [stage\_names](#input\_stage\_names) | (Required) Name of the stage(s). | `list(string)` | `null` | no |
 | <a name="input_stage_variable_overrides"></a> [stage\_variable\_overrides](#input\_stage\_variable\_overrides) | (Optional) Map of overridden stage variables (including new variables) for the canary deployment. | `any` | `{}` | no |
 | <a name="input_stage_variables"></a> [stage\_variables](#input\_stage\_variables) | (Optional) Map that defines the stage variables. | `any` | `{}` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to resources. | `map(string)` | `{}` | no |
 | <a name="input_throttling_burst_limit"></a> [throttling\_burst\_limit](#input\_throttling\_burst\_limit) | (Optional) Throttling burst limit. Default: -1 (throttling disabled). | `number` | `-1` | no |
 | <a name="input_throttling_rate_limit"></a> [throttling\_rate\_limit](#input\_throttling\_rate\_limit) | (Optional) Throttling rate limit. Default: -1 (throttling disabled). | `number` | `-1` | no |
 | <a name="input_unauthorized_cache_control_header_strategy"></a> [unauthorized\_cache\_control\_header\_strategy](#input\_unauthorized\_cache\_control\_header\_strategy) | (Optional) How to handle unauthorized requests for cache invalidation. The available values are `FAIL_WITH_403`, `SUCCEED_WITH_RESPONSE_HEADER`, `SUCCEED_WITHOUT_RESPONSE_HEADER`. | `string` | `"SUCCEED_WITH_RESPONSE_HEADER"` | no |
-| <a name="input_usage_plans"></a> [usage\_plans](#input\_usage\_plans) | Map of objects that define the usage plan to be created. | <pre>list(<br>    object({<br>      name         = string<br>      description  = string<br>      burst_limit  = number<br>      rate_limit   = number<br>      quota_limit  = number<br>      quota_offset = number<br>      quota_period = string<br>      stages       = list(string)<br>    })<br>  )</pre> | <pre>[<br>  {<br>    "burst_limit": null,<br>    "description": null,<br>    "name": null,<br>    "quota_limit": null,<br>    "quota_offset": null,<br>    "quota_period": null,<br>    "rate_limit": null,<br>    "stages": [<br>      null<br>    ]<br>  }<br>]</pre> | no |
+| <a name="input_usage_plans"></a> [usage\_plans](#input\_usage\_plans) | Map of objects that define the usage plan to be created. | <pre>list(<br/>    object({<br/>      name         = string<br/>      description  = string<br/>      burst_limit  = number<br/>      rate_limit   = number<br/>      quota_limit  = number<br/>      quota_offset = number<br/>      quota_period = string<br/>      stages       = list(string)<br/>    })<br/>  )</pre> | <pre>[<br/>  {<br/>    "burst_limit": null,<br/>    "description": null,<br/>    "name": null,<br/>    "quota_limit": null,<br/>    "quota_offset": null,<br/>    "quota_period": null,<br/>    "rate_limit": null,<br/>    "stages": [<br/>      null<br/>    ]<br/>  }<br/>]</pre> | no |
 | <a name="input_use_stage_cache"></a> [use\_stage\_cache](#input\_use\_stage\_cache) | (Optional) Whether the canary deployment uses the stage cache. Defaults to false. | `bool` | `false` | no |
 | <a name="input_waf_acl"></a> [waf\_acl](#input\_waf\_acl) | (Required) The ID of the WAF Regional WebACL to create an association. | `string` | `null` | no |
 | <a name="input_xray_tracing_enabled"></a> [xray\_tracing\_enabled](#input\_xray\_tracing\_enabled) | (Optional) Whether active tracing with X-ray is enabled. Defaults to false. | `bool` | `false` | no |
@@ -325,4 +358,5 @@ No modules.
 | <a name="output_api_gateway_rest_api_stage_id"></a> [api\_gateway\_rest\_api\_stage\_id](#output\_api\_gateway\_rest\_api\_stage\_id) | Id of the deployed stage(s). |
 | <a name="output_api_gateway_rest_api_stage_invoke_url"></a> [api\_gateway\_rest\_api\_stage\_invoke\_url](#output\_api\_gateway\_rest\_api\_stage\_invoke\_url) | Invoke URL of the deployed stage(s). |
 | <a name="output_api_gateway_rest_api_stage_web_acl"></a> [api\_gateway\_rest\_api\_stage\_web\_acl](#output\_api\_gateway\_rest\_api\_stage\_web\_acl) | WAF Access Control List for the stage(s) |
+| <a name="output_aws_api_gateway_domain_name"></a> [aws\_api\_gateway\_domain\_name](#output\_aws\_api\_gateway\_domain\_name) | api gateway domain name |
 <!-- END_TF_DOCS -->
