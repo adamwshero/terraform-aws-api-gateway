@@ -198,7 +198,7 @@ resource "aws_api_gateway_domain_name" "regional_acm" {
   domain_name = var.domain_names[count.index]
   regional_certificate_arn = var.domain_certificate_arn
   endpoint_configuration {
-    types = "REGIONAL"
+    types = ["REGIONAL"]
   }
 
   dynamic "mutual_tls_authentication" {
@@ -230,7 +230,7 @@ resource "aws_api_gateway_domain_name" "regional_iam" {
   certificate_private_key   = var.iam_certificate_private_key
 
   endpoint_configuration {
-    types = "REGIONAL"
+    types = ["REGIONAL"]
   }
 
   dynamic "mutual_tls_authentication" {
