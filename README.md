@@ -91,7 +91,8 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 <br>
 
 ## Upcoming/Recent Improvements
-  * Want `aws_api_gateway_method_settings` to allow us to apply different method settings by stage and by method instead of choosing between the full override `*/*` or only a single method to manage (e.g. `{resource_path}/{http_method}`). Currently whatever the path is dictates all method settings for the stages that have been deployed. Method settings would be represented as a `map` just as we already do with api keys and usage plans.
+  * <s>Want `aws_api_gateway_method_settings` to allow us to apply different method settings by stage and by method instead of choosing between the full override `*/*` or only a single method to manage (e.g. `{resource_path}/{http_method}`). Currently whatever the path is dictates all method settings for the stages that have been deployed. Method settings would be represented as a `map` just as we already do with api keys and usage plans.</s>
+    * Fixed in 1.3.0 release
   * Want a usage_plan to accept many API keys as a `list(string)`. Currenly a usage plan has a 1:1 relationship with API keys. This should be expanded so that many API keys can be associated with a single usage plan in the event multiple external consumers have similar API needs. This will reduce the number of usage plans needed.
   * <s>Want the ability to create/enable VPC Link in this module since we're already consuming the Network Load Balancer (NLB) outputs when we are using the `regional` or `edge` deployment type</s>.
     * [Works well with our VPC Link module](https://registry.terraform.io/modules/adamwshero/api-gateway-vpc-link/aws/latest)
