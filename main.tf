@@ -191,7 +191,17 @@ resource "aws_wafv2_web_acl_association" "this" {
   web_acl_arn  = var.waf_acl
 }
 
-# REGIONAL custom domain name
+# EXISTING custom domain name
+resource "aws_api_gateway_base_path_mapping" "existing" {
+  count = !var.create_api_domain_name && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  api_id      = aws_api_gateway_rest_api.this.id
+  domain_name = var.domain_names[count.index]
+  stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+  base_path   = var.domain_base_path
+}
+
+# REGIONAL ACM custom domain name
 resource "aws_api_gateway_domain_name" "regional_acm" {
   count = var.create_api_domain_name && var.endpoint_type == "REGIONAL" && var.certificate_type == "ACM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
@@ -217,8 +227,10 @@ resource "aws_api_gateway_base_path_mapping" "regional_acm" {
   api_id      = aws_api_gateway_rest_api.this.id
   domain_name = aws_api_gateway_domain_name.regional_acm[count.index].id
   stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+  base_path   = var.domain_base_path
 }
 
+# REGIONAL IAM custom domain name
 resource "aws_api_gateway_domain_name" "regional_iam" {
   count = var.create_api_domain_name && var.endpoint_type == "REGIONAL" && var.certificate_type == "IAM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
@@ -249,9 +261,10 @@ resource "aws_api_gateway_base_path_mapping" "regional_iam" {
   api_id      = aws_api_gateway_rest_api.this.id
   domain_name = aws_api_gateway_domain_name.regional_iam[count.index].id
   stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+  base_path   = var.domain_base_path
 }
 
-
+# EDGE ACM custom domain name
 resource "aws_api_gateway_domain_name" "edge_acm" {
   count = var.create_api_domain_name && var.endpoint_type == "EDGE" && var.certificate_type == "ACM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
@@ -279,9 +292,10 @@ resource "aws_api_gateway_base_path_mapping" "edge_acm" {
   api_id      = aws_api_gateway_rest_api.this.id
   domain_name = aws_api_gateway_domain_name.edge_acm[count.index].id
   stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+  base_path   = var.domain_base_path
 }
 
-# EDGE custom domain name
+# EDGE IAM custom domain name
 resource "aws_api_gateway_domain_name" "edge_iam" {
   count = var.create_api_domain_name && var.endpoint_type == "EDGE" && var.certificate_type == "IAM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
@@ -312,6 +326,7 @@ resource "aws_api_gateway_base_path_mapping" "edge_iam" {
   api_id      = aws_api_gateway_rest_api.this.id
   domain_name = aws_api_gateway_domain_name.edge_iam[count.index].id
   stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+  base_path   = var.domain_base_path
 }
 
 resource "aws_api_gateway_rest_api_policy" "this" {

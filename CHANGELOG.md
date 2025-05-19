@@ -1,3 +1,13 @@
+## 1.4.0 (May 19, 2025)
+
+FEATURE:
+  * Add base path mapping attribute for `aws_api_gateway_base_path_mapping` resource.
+  * Add support for existing domains
+
+CHORE:
+  * Cleanup comments in main.tf
+  * Reorganize base_path_mapping resources for readability.
+
 ## 1.3.0 (April 10, 2025)
 
 FEATURE:
