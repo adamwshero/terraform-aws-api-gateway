@@ -88,6 +88,8 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
     deployment history has new deployments but the actual deployment in-use by the stage might be an older one.
     * Currently there is almost always one deployment, which is the most recent one. When there are multiple deployments in history, only the most recent will be used by default.
     * Domain names supports only one ACM Certificate for all the domain names, so the certificate must be valid for all the chosen domain names.
+  * (Using Existing Domains)
+    * In the case where you need to use an existing domain (e.g. `create_api_domain_name = false`), ensure that both `domain_names` and `domain_base_path` are set to the desired values.
 <br>
 
 ## Upcoming/Recent Improvements
