@@ -217,6 +217,7 @@ resource "aws_api_gateway_base_path_mapping" "regional_acm" {
   api_id      = aws_api_gateway_rest_api.this.id
   domain_name = aws_api_gateway_domain_name.regional_acm[count.index].id
   stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+  base_path   = var.domain_base_path
 }
 
 resource "aws_api_gateway_domain_name" "regional_iam" {
@@ -249,6 +250,16 @@ resource "aws_api_gateway_base_path_mapping" "regional_iam" {
   api_id      = aws_api_gateway_rest_api.this.id
   domain_name = aws_api_gateway_domain_name.regional_iam[count.index].id
   stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+  base_path   = var.domain_base_path
+}
+
+resource "aws_api_gateway_base_path_mapping" "existing" {
+  count = !var.create_api_domain_name && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+
+  api_id      = aws_api_gateway_rest_api.this.id
+  domain_name = var.domain_names[count.index]
+  stage_name  = aws_api_gateway_stage.this[count.index].stage_name
+  base_path   = var.domain_base_path
 }
 
 

@@ -312,6 +312,12 @@ variable "domain_names" {
   default     = null
 }
 
+variable "domain_base_path" {
+  description = "(Optional) Path segment that must be prepended to the path when accessing the API via this mapping. If omitted, the API is exposed at the root of the given domain."
+  type        = string
+  default     = "/"
+}
+
 variable "domain_certificate_arn" {
   description = "The ARN of an AWS-managed certificate that will be used by the endpoint for the domain name."
   type        = string

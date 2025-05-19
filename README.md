@@ -244,7 +244,6 @@ inputs = {
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.5.0, < 5.75.0 |
-| <a name="requirement_terragrunt"></a> [terragrunt](#requirement\_terragrunt) | >= 0.28.0 |
 
 ## Providers
 
@@ -264,6 +263,7 @@ No modules.
 | [aws_api_gateway_api_key.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_api_key) | resource |
 | [aws_api_gateway_base_path_mapping.edge_acm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_base_path_mapping) | resource |
 | [aws_api_gateway_base_path_mapping.edge_iam](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_base_path_mapping) | resource |
+| [aws_api_gateway_base_path_mapping.existing](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_base_path_mapping) | resource |
 | [aws_api_gateway_base_path_mapping.regional_acm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_base_path_mapping) | resource |
 | [aws_api_gateway_base_path_mapping.regional_iam](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_base_path_mapping) | resource |
 | [aws_api_gateway_deployment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_deployment) | resource |
@@ -306,6 +306,7 @@ No modules.
 | <a name="input_data_trace_enabled"></a> [data\_trace\_enabled](#input\_data\_trace\_enabled) | (Optional) Whether data trace logging is enabled for this method, which effects the log entries pushed to Amazon CloudWatch Logs. | `bool` | `false` | no |
 | <a name="input_description"></a> [description](#input\_description) | (Optional) Description of the REST API. If importing an OpenAPI specification via the `body` argument, this corresponds to the `info.description` field. If the argument value is provided and is different than the OpenAPI value, the argument value will override the OpenAPI value. | `string` | `null` | no |
 | <a name="input_documentation_version"></a> [documentation\_version](#input\_documentation\_version) | (Optional) Version of the associated API documentation. | `string` | `null` | no |
+| <a name="input_domain_base_path"></a> [domain\_base\_path](#input\_domain\_base\_path) | (Optional) Path segment that must be prepended to the path when accessing the API via this mapping. If omitted, the API is exposed at the root of the given domain. | `string` | `"/"` | no |
 | <a name="input_domain_certificate_arn"></a> [domain\_certificate\_arn](#input\_domain\_certificate\_arn) | The ARN of an AWS-managed certificate that will be used by the endpoint for the domain name. | `string` | `null` | no |
 | <a name="input_domain_certificate_name"></a> [domain\_certificate\_name](#input\_domain\_certificate\_name) | Unique name to use when registering this certificate as an IAM server certificate. Conflicts with certificate\_arn, regional\_certificate\_arn, and regional\_certificate\_name. Required if certificate\_arn is not set. | `string` | `null` | no |
 | <a name="input_domain_names"></a> [domain\_names](#input\_domain\_names) | Fully-qualified domain name to register. The domain names to use for API gateway it will use the index of stage\_names to select the domain name. | `list(string)` | `null` | no |
