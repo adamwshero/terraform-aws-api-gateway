@@ -1,7 +1,7 @@
 ### Terraform Basic Example + Lambda (as authorizer)
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.0"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.1"
 
 
 inputs = {
@@ -58,7 +58,7 @@ inputs = {
 ### Terraform Example + Lambda (as authorizer) + Stage Canary + Method Settings
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.0"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.1"
 
 
 inputs = {
@@ -130,7 +130,7 @@ inputs = {
 ### Terraform Complete Example + Lambda (as authorizer) + Stage Canary + Method Settings + WAF
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.0"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.1"
 
 
 inputs = {
@@ -204,7 +204,7 @@ inputs = {
 ### Terraform Complete Example + Lambda (as authorizer) + Stage Canary + Method Settings + WAF + API Keys + Usage Plans
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.0"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.1"
 
 
 inputs = {

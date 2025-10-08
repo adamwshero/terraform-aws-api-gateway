@@ -33,7 +33,7 @@ dependency "execution_policy" {
 }
 
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.0"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.1"
 }
 
 inputs = {

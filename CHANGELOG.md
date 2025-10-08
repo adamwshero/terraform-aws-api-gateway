@@ -1,3 +1,8 @@
+## 1.4.1 (Oct 8, 2025)
+
+BUG:
+  * Add sensitive annotation to aws_api_gateway_domain_name output
+
 ## 1.4.0 (May 19, 2025)
 
 FEATURE:

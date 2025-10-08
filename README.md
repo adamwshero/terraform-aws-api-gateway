@@ -113,7 +113,7 @@ Build RESTful APIs optimized for serverless workloads and HTTP backends using HT
 ### Terraform Basic Example
 ```
 module "rest-api" {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.0"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.1"
 
 
 inputs = {
@@ -170,7 +170,7 @@ inputs = {
 ### Terragrunt Basic Example
 ```
 terraform {
-  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.0"
+  source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.1"
 }
 
 inputs = {
