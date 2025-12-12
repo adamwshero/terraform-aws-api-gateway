@@ -12,6 +12,8 @@ resource "aws_api_gateway_rest_api" "this" {
 
 resource "aws_api_gateway_deployment" "this" {
   count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
+  ## Deployment for the PRIVATE APIs fails if the policy has not been attached
+  depends_on = [ aws_api_gateway_rest_api_policy.this ]
 
   rest_api_id = aws_api_gateway_rest_api.this.id
   description = "Managed by Terraform"
