@@ -12,8 +12,6 @@ resource "aws_api_gateway_rest_api" "this" {
 
 resource "aws_api_gateway_deployment" "this" {
   count = length(var.stage_names) > 0 ? length(var.stage_names) : 0
-  ## Deployment for the PRIVATE APIs fails if the policy has not been attached
-  depends_on = [ aws_api_gateway_rest_api_policy.this ]
 
   rest_api_id = aws_api_gateway_rest_api.this.id
   description = "Managed by Terraform"
@@ -32,7 +30,8 @@ resource "aws_api_gateway_deployment" "this" {
     #       https://github.com/hashicorp/terraform-provider-aws/issues/162
 
     # redeployment = sha1(jsonencode([
-    #   aws_api_gateway_rest_api.this.body
+    #   aws_api_gateway_rest_api.this.body,
+    #   try(aws_api_gateway_rest_api_policy.this[0].id, null)
     #   ]
     # ))
 
