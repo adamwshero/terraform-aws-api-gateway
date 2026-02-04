@@ -1,0 +1,61 @@
+openapi: 3.0.1
+info:
+  title: Integrations
+  description: An API that reuses integrations
+  version: '1.0'
+paths:
+  "/path":
+    get:
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        uri: ${endpoint_uri}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        payloadFormatVersion: '1.0'
+        connectionType: VPC_LINK
+        connectionId: ${vpc_link_id}
+      responses:
+        '200':
+          description: Return a 200
+      security: [
+        apiKeyAuth: []
+      ]
+      x-amazon-apigateway-endpoint-configuration:
+        vpcEndpointIds: [""]
+        disableExecuteApiEndpoint: true
+  "/path2":
+    post:
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        uri: ${endpoint_uri}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        payloadFormatVersion: '1.0'
+        connectionType: VPC_LINK
+        connectionId: ${vpc_link_id}
+      responses:
+        '200':
+          description: Return a 200
+      security: [
+        lambdaAuth: []
+      ]
+components:
+  securitySchemes:
+    lambdaAuth:
+      type: apiKey
+      name: cs-authorization
+      in: header
+      x-amazon-apigateway-authtype: custom
+      x-amazon-apigateway-authorizer:
+        type: request
+        identitySource: method.request.header.cs-authorization
+        authorizerUri: ${lambda_invoke_arn}
+        identityValidationExpression: "^x-[a-z]+"
+        authorizerResultTtlInSeconds: 60
+    apiKeyAuth:
+      type: apiKey
+      name: x-api-key
+      in: header
+
+
+

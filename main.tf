@@ -49,7 +49,7 @@ resource "aws_api_gateway_stage" "this" {
 
   rest_api_id           = aws_api_gateway_rest_api.this.id
   stage_name            = var.stage_names[count.index]
-  description           = "${var.stage_description} - Deployed on ${timestamp()}"
+  description           = "${coalesce(var.stage_description, "Managed by Terraform")} - Deployed on ${timestamp()}"
   documentation_version = var.documentation_version
   deployment_id         = aws_api_gateway_deployment.this[count.index].id
   cache_cluster_enabled = var.cache_cluster_enabled
@@ -193,7 +193,7 @@ resource "aws_wafv2_web_acl_association" "this" {
 
 # EXISTING custom domain name
 resource "aws_api_gateway_base_path_mapping" "existing" {
-  count = !var.create_api_domain_name && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+  count = !var.create_api_domain_name && length(coalesce(var.domain_names, [])) > 0 && length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
   api_id      = aws_api_gateway_rest_api.this.id
   domain_name = var.domain_names[count.index]

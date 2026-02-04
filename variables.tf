@@ -307,9 +307,25 @@ variable "create_api_domain_name" {
 }
 
 variable "domain_names" {
-  description = "Fully-qualified domain name to register. The domain names to use for API gateway it will use the index of stage_names to select the domain name."
+  description = <<-EOT
+    Fully-qualified domain name(s) to register. The domain names to use for API Gateway - will use the index of stage_names to select the domain name.
+    
+    Usage modes:
+    - Set to null or [] to skip custom domain configuration (use default AWS endpoint)
+    - Provide list of domain names when create_api_domain_name = true to create new custom domains
+    - Provide list of domain names when create_api_domain_name = false to use existing custom domains
+  EOT
   type        = list(string)
   default     = null
+  validation {
+    condition = (
+      var.domain_names == null ||
+      length(coalesce(var.domain_names, [])) == 0 ||
+      (var.create_api_domain_name == false && length(coalesce(var.domain_names, [])) > 0) ||
+      (var.create_api_domain_name == true && length(coalesce(var.domain_names, [])) > 0)
+    )
+    error_message = "When using custom domains, domain_names must be provided as a non-empty list. Set domain_names to null or [] to skip custom domain configuration."
+  }
 }
 
 variable "domain_base_path" {
