@@ -1,10 +1,15 @@
+variable "tags" {}
+
+variable "env" {}
+
+
 module "rest-api" {
   source = "git::git@github.com:adamwshero/terraform-aws-api-gateway.git//.?ref=1.4.1"
 
-  api_name          = "my-app-dev"
-  description       = "Development API for the My App service."
-  endpoint_type     = "REGIONAL"
-  put_put_rest_api_mode = "merge"   // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
+  api_name      = "my-app-dev"
+  description   = "Development API for the My App service."
+  endpoint_type = "REGIONAL"
+  # put_put_rest_api_mode = "merge" // Toggle to `overwrite` only when renaming a resource path or removing a resource from the openapi definition.
 
   // API Custom Domain
   create_api_domain_name = true
@@ -13,7 +18,7 @@ module "rest-api" {
 
   // API Resource Policy
   create_rest_api_policy = true
-  rest_api_policy = templatefile("${get_terragrunt_dir()}/api_policy.json.tpl",
+  rest_api_policy = templatefile("${path.module}/api_policy.json.tpl",
     {}
   )
 
@@ -22,6 +27,7 @@ module "rest-api" {
     {
       endpoint_uri             = "https://my-app.nonprod.company.com/my_app_path"
       vpc_link_id              = "9ab12c"
+      lambda_invoke_arn        = "arn:aws:lambda:us-east-1:111111111111:function:my-app-dev"
       authorizer_invoke_arn    = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:111111111111:function:my-app-dev/invocation"
       authorizer_execution_arn = "arn:aws:iam::111111111111:role/my-app-dev"
     }
@@ -67,8 +73,8 @@ module "rest-api" {
   waf_acl    = "arn:aws:wafv2:us-east-1:111111111111:regional/webacl/my-app-nonprod/f111b1a1-1c11-1ea1-a111-cd1fe111b11a"
 
   // Execution Role
-  cloudwatch_role_arn    = "arn:aws:iam::111111111111:role/my-app"
-  cloudwatch_policy_name = "my-app-dev"
+  cloudwatch_role_arn = "arn:aws:iam::111111111111:role/my-app"
+  # cloudwatch_policy_name = "my-app-dev"
 
   // Usage Plans & API Keys
   create_usage_plan = true
@@ -87,7 +93,7 @@ module "rest-api" {
   ]
   usage_plans = [
     {
-      name         = "open-use-internal-${local.env}"
+      name         = "open-use-internal-${var.env}"
       description  = "Open API Usage Plan."
       burst_limit  = 10000000
       rate_limit   = 10000000
@@ -108,5 +114,5 @@ module "rest-api" {
     }
   ]
 
-  tags = local.tags
+  tags = var.tags
 }

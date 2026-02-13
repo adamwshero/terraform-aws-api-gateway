@@ -6,7 +6,7 @@ resource "aws_api_gateway_rest_api" "this" {
   tags              = var.tags
 
   endpoint_configuration {
-    types = [ var.endpoint_type ]
+    types = [var.endpoint_type]
   }
 }
 
@@ -193,7 +193,7 @@ resource "aws_wafv2_web_acl_association" "this" {
 
 # EXISTING custom domain name
 resource "aws_api_gateway_base_path_mapping" "existing" {
-  count = !var.create_api_domain_name && length(coalesce(var.domain_names, [])) > 0 && length(var.stage_names) > 0 ? length(var.stage_names) : 0
+  count = ! var.create_api_domain_name && length(coalesce(var.domain_names, [])) > 0 && length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
   api_id      = aws_api_gateway_rest_api.this.id
   domain_name = var.domain_names[count.index]
@@ -205,7 +205,7 @@ resource "aws_api_gateway_base_path_mapping" "existing" {
 resource "aws_api_gateway_domain_name" "regional_acm" {
   count = var.create_api_domain_name && var.endpoint_type == "REGIONAL" && var.certificate_type == "ACM" && length(var.stage_names) > 0 ? length(var.stage_names) : 0
 
-  domain_name = var.domain_names[count.index]
+  domain_name              = var.domain_names[count.index]
   regional_certificate_arn = var.domain_certificate_arn
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -301,10 +301,10 @@ resource "aws_api_gateway_domain_name" "edge_iam" {
 
   domain_name = var.domain_names[count.index]
 
-  certificate_name          = var.domain_certificate_name
-  certificate_body          = var.iam_certificate_body
-  certificate_chain         = var.iam_certificate_chain
-  certificate_private_key   = var.iam_certificate_private_key
+  certificate_name        = var.domain_certificate_name
+  certificate_body        = var.iam_certificate_body
+  certificate_chain       = var.iam_certificate_chain
+  certificate_private_key = var.iam_certificate_private_key
 
   endpoint_configuration {
     types = ["EDGE"]
@@ -337,10 +337,10 @@ resource "aws_api_gateway_rest_api_policy" "this" {
 }
 
 resource "aws_api_gateway_model" "this" {
-  for_each = var.models
+  for_each     = var.models
   rest_api_id  = aws_api_gateway_rest_api.this.id
   name         = each.key
-  description  = lookup(each.value,"description","")
-  content_type = lookup(each.value,"content_type","")
-  schema = lookup(each.value,"schema",{})
+  description  = lookup(each.value, "description", "")
+  content_type = lookup(each.value, "content_type", "")
+  schema       = lookup(each.value, "schema", {})
 }

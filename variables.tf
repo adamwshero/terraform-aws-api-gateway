@@ -124,8 +124,8 @@ variable "models" {
 ########################################
 variable "method_settings" {
   description = "Stage method settings"
-  type = any
-  default = {} 
+  type        = any
+  default     = {}
 }
 
 variable "metrics_enabled" {
@@ -317,16 +317,16 @@ variable "domain_names" {
   EOT
   type        = list(string)
   default     = null
-# Uncomment the lines below if using terraform version 1.9.x
-#  validation {
-#    condition = (
-#      var.domain_names == null ||
-#      length(coalesce(var.domain_names, [])) == 0 ||
-#      (var.create_api_domain_name == false && length(coalesce(var.domain_names, [])) > 0) ||
-#      (var.create_api_domain_name == true && length(coalesce(var.domain_names, [])) > 0)
-#    )
-#    error_message = "When using custom domains, domain_names must be provided as a non-empty list. Set domain_names to null or [] to skip custom domain configuration."
-#  }
+  # Uncomment the lines below if using terraform version 1.9.x
+  #  validation {
+  #    condition = (
+  #      var.domain_names == null ||
+  #      length(coalesce(var.domain_names, [])) == 0 ||
+  #      (var.create_api_domain_name == false && length(coalesce(var.domain_names, [])) > 0) ||
+  #      (var.create_api_domain_name == true && length(coalesce(var.domain_names, [])) > 0)
+  #    )
+  #    error_message = "When using custom domains, domain_names must be provided as a non-empty list. Set domain_names to null or [] to skip custom domain configuration."
+  #  }
 }
 
 variable "domain_base_path" {
