@@ -10,9 +10,9 @@ provider "aws" {
 module "rest-api" {
   source = "../../"
 
-  api_name          = "my-app-dev"
-  description       = "Development API for the My App service (No Domain Mode)."
-  endpoint_type     = "REGIONAL"
+  api_name      = "my-app-dev"
+  description   = "Development API for the My App service (No Domain Mode)."
+  endpoint_type = "REGIONAL"
 
   // Custom Domain Configuration
   // Explicitly disable custom domains and provide no domain names
@@ -35,9 +35,9 @@ module "rest-api" {
   )
 
   // Stage Settings
-  stage_names           = ["dev"]
-  log_group_name        = "/aws/apigateway/access/my_app/dev"
-  access_log_format     = templatefile("${path.module}/log_format.json.tpl", {})
+  stage_names       = ["dev"]
+  log_group_name    = "/aws/apigateway/access/my_app/dev"
+  access_log_format = templatefile("${path.module}/log_format.json.tpl", {})
 
   // Execution Role
   cloudwatch_role_arn = "arn:aws:iam::111111111111:role/api-gateway-cloudwatch-role"

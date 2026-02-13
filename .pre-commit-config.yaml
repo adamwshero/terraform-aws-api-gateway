@@ -1,0 +1,34 @@
+repos:
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.102.0
+  hooks:
+  - id: terraform_fmt
+    args:
+      - --args=-no-color
+      - --args=-diff
+      - --args=-write=true
+  - id: terraform_validate
+    args:
+      - --args=-json
+      - --args=-no-color
+- repo: local
+  hooks:
+    - id: checkov-docker
+      name: checkov
+      entry: >
+        docker run --rm
+        -v $(pwd):/tf
+        bridgecrew/checkov:latest
+        --directory ./
+      language: system
+      pass_filenames: false
+      types: [terraform, yaml]
+- repo: local
+  hooks:
+    - id: terraform-docs
+      name: terraform-docs
+      language: docker_image
+      entry: quay.io/terraform-docs/terraform-docs:latest  # or, change latest to pin to a specific version
+      args: ["markdown", "--output-file", "./README.md", "."]          # e.g. ["--output-file", "README.md", "./mymodule/path"]
+      pass_filenames: false
+

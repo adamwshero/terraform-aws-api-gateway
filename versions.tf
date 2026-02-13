@@ -9,9 +9,9 @@ terraform {
 
     # Uncomment the lines below to generate the docs with the requirement
     # terraform-docs markdown table --output-file README.md --output-mode inject .
-#     terragrunt = {
-#      source = "gruntworks/terragrunt"
-#      version = ">= 0.28.0"
-#     }
+    #     terragrunt = {
+    #      source = "gruntworks/terragrunt"
+    #      version = ">= 0.28.0"
+    #     }
   }
 }
